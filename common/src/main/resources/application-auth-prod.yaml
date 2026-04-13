@@ -1,0 +1,15 @@
+constants:
+  jwt:
+    issuer: green502@green.com # JWT 토큰 발행자 정보
+    bearer-format: JWT
+    claim-key: signedUser
+    #JWT_SECRET_KEY라는 환경변수 값이 있다면 그 값을 사용하고 없다면 : 뒤에 값을 사용한다.
+    secret-key: ${JWT_SECRET_KEY:DeaguGreenArtAcademyClass502MsaClassFighting} # 비밀 레시피(절대 공개되어서는 안 된다)
+    access-token-cookie-name: access-token
+    access-token-cookie-path: /
+    access-token-cookie-validity-seconds: 3595 # 1시간 - 5초
+    access-token-validity-milliseconds: 3600000 # 1시간
+    refresh-token-cookie-name: refresh-token
+    refresh-token-cookie-path: /api/user/reissue
+    refresh-token-cookie-validity-seconds: 1295995 # 15일 - 5초
+    refresh-token-validity-milliseconds: 1296000000 # 15일

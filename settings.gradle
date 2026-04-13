@@ -1,0 +1,6 @@
+rootProject.name = 'container'
+include 'common'
+include 'gateway-service'
+include 'order-service'
+include 'store-service'
+include 'auth-service'
