@@ -11,18 +11,16 @@ public class EnumMapper {
     public void put(String key, Class<? extends EnumMapperType> e) {
         factory.put(key, toEnumValues(e));
     }
+    // 추가: 이미 변환된 리스트를 직접 저장 (스캐너용)
+    public void put(String key, List<EnumMapperValue> values) {
+        factory.put(key, values);
+    }
 
-    // e.getEnumConstants(): SchoolTypeCode[] schoolTypeCodeArray = [ SchoolTypeCode.ELEMENTARY, SchoolTypeCode.MIDDLE, SchoolTypeCode.HIGH ];
     private List<EnumMapperValue> toEnumValues(Class<? extends EnumMapperType> e) {
         return Arrays.stream(e.getEnumConstants()) // Array to Stream
                 .map(EnumMapperValue::new) // map은 같은 크기의 스트림을 만든다. 메소드 참조 .map(item -> new EnumMapperValue(item)) 이렇게 작성된 것과 같다.
                 .toList(); // 최종연산
     }
-    // 스트림 ( EnumMapperValue객체, EnumMapperValue객체, EnumMapperValue객체 )
-    // 첫번째 EnumMapperValue는 code="00101", value="초등학교"
-    // 두번째 EnumMapperValue는 code="00102", value="중학교"
-    // 세번째 EnumMapperValue는 code="00103", value="고등학교"
-    // 최종연산은 toList니까 Stream > ArrayList바뀐다.
 
     public List<EnumMapperValue> get(String key) {
         return factory.get(key);

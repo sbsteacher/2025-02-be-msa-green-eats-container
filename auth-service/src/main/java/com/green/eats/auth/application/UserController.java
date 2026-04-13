@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/user")
 public class UserController {
     private final UserService userService;
     private final JwtTokenManager jwtTokenManager;
