@@ -2,6 +2,7 @@ package com.green.eats.store.application;
 
 import com.green.eats.common.Dummy;
 import com.green.eats.store.entity.Menu;
+import com.green.eats.store.enumcode.EnumMenuCategory;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
@@ -22,6 +23,9 @@ public class MenuDummy extends Dummy {
             menu.setName( koFaker.food().dish() );
             menu.setPrice( koFaker.random().nextInt(10_000, 50_000) );
             menu.setStockQuantity( koFaker.random().nextInt(5, 40) );
+            int enumIndex = koFaker.random().nextInt(0, EnumMenuCategory.values().length - 1);
+            menu.setEnumMenuCategory( EnumMenuCategory.values()[enumIndex] );
+            //menu.setEnumMenuCategory( EnumMenuCategory.CHINESE_FOOD );
             menuRepository.save(menu);
         }
         menuRepository.flush(); //필수

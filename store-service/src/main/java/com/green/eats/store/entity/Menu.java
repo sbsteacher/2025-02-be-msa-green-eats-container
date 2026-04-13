@@ -1,9 +1,12 @@
 package com.green.eats.store.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.green.eats.store.enumcode.EnumMenuCategory;
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,6 +25,10 @@ public class Menu {
 
     @Column(nullable = false)
     private Integer stockQuantity;
+
+    @Column(nullable = false, name="cd_category")
+    @JsonProperty("menuCategory")
+    private EnumMenuCategory enumMenuCategory;
 
     public void removeStock(int quantity) {
         int restStock = this.stockQuantity - quantity;
