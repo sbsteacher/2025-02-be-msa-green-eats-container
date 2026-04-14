@@ -39,12 +39,14 @@ public class UserController {
         User signedUser = userService.signin( req );
 
         //인증 쿠키
-        JwtUser jwtUser = new JwtUser( signedUser.getId(), signedUser.getName() );
+        JwtUser jwtUser = new JwtUser( signedUser.getId()
+                                     , signedUser.getName()
+                                     , signedUser.getEnumUserRole() );
         jwtTokenManager.issue(res, jwtUser);
 
         UserSigninRes resultData = UserSigninRes.builder()
                 .id( signedUser.getId() )
-                .name(signedUser.getName() )
+                .name( signedUser.getName() )
                 .build();
 
         return ResultResponse.builder()

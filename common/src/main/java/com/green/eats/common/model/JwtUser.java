@@ -11,4 +11,5 @@ import lombok.ToString;
 public class JwtUser {
     private long signedUserId;
     private String name;
+    private EnumUserRole enumUserRole;
 }

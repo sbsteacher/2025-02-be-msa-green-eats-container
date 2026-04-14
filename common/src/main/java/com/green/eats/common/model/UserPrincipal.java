@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -19,9 +20,11 @@ public class UserPrincipal implements UserDetails {
         return jwtUser.getSignedUserId();
     }
 
+    //인가 체크
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        String roleName = String.format("ROLE_%s", jwtUser.getEnumUserRole().name());
+        return List.of(new SimpleGrantedAuthority(roleName));
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.green.eats.auth.entity;
 
 import com.green.eats.common.entity.CreatedUpdatedAt;
+import com.green.eats.common.model.EnumUserRole;
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,4 +28,7 @@ public class User extends CreatedUpdatedAt {
     private String name;
 
     private String address;
+
+    @Column(nullable = false, length = 2)
+    private EnumUserRole enumUserRole;
 }
