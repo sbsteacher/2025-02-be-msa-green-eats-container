@@ -9,7 +9,6 @@ import java.util.*;
 
 @Slf4j
 public class EnumMapperScanner {
-
     public static Map<String, List<EnumMapperValue>> scan(String basePackage) {
         Map<String, List<EnumMapperValue>> factory = new LinkedHashMap<>();
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
