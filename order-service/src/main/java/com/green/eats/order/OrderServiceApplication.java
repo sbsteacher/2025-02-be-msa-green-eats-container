@@ -1,4 +1,4 @@
-package com.green.eats.gateway;
+package com.green.eats.order;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

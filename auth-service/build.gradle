@@ -6,6 +6,7 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-api:0.13.0'
 	implementation 'io.jsonwebtoken:jjwt-impl:0.13.0'
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.13.0'
+	implementation 'org.springframework.boot:spring-boot-starter-kafka'
 
 	// TSID 사용을 위한 유틸리티
 	implementation 'io.hypersistence:hypersistence-utils-hibernate-70:3.15.2'

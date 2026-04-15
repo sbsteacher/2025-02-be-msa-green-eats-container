@@ -5,6 +5,7 @@ import com.green.eats.gateway.filter.TokenAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -32,7 +33,8 @@ public class WebSecurityConfiguration {
                 //인가처리 (권한처리)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/order/**").authenticated()
-                        .requestMatchers("/api/store/menu").hasRole(EnumUserRole.ADMIN.name())
+                        //.requestMatchers("/api/store/menu").hasRole(EnumUserRole.ADMIN.name())
+                        //.requestMatchers(HttpMethod.GET,"/api/store/menu").hasRole(EnumUserRole.ADMIN.name())
                         .anyRequest().permitAll()
                 )
 

@@ -2,13 +2,29 @@
 // 자식에서는 plugins 블록을 비우거나 생략해도 됩니다.
 
 dependencies {
-	compileOnly 'io.jsonwebtoken:jjwt-api:0.13.0'
-	compileOnly 'io.jsonwebtoken:jjwt-impl:0.13.0'
-	compileOnly 'io.jsonwebtoken:jjwt-jackson:0.13.0'
-	compileOnly 'org.springframework.boot:spring-boot-starter-security'
-	compileOnly 'org.springframework.boot:spring-boot-starter-data-jpa'
+	// 1. 공통 모듈 의존성 주입 (가장 중요)
+	implementation project(':common')
+// JSON 처리를 위한 Jackson
+	implementation 'io.jsonwebtoken:jjwt-api:0.13.0'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.13.0'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.13.0'
+	implementation 'org.springframework.boot:spring-boot-starter-kafka'
+
+	// TSID 사용을 위한 유틸리티
+	implementation 'io.hypersistence:hypersistence-utils-hibernate-70:3.15.2'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16'
+
+	runtimeOnly 'com.mysql:mysql-connector-j'
 }
 
-// 라이브러리이므로 실행 파일(jar) 생성 방식을 변경
-bootJar { enabled = false } // 실행 가능한 jar를 만들지 않음 (메인 메소드가 없으므로)
-jar { enabled = true } // 다른 모듈에서 부품으로 쓸 수 있는 일반 jar만 생성
+tasks.named('test') {
+	useJUnitPlatform() // 이 설정이 없으면 JUnit 5 테스트를 인식하지 못합니다.
+}
+// 서비스 모듈은 실행 가능한 jar 파일로 빌드되어야 합니다.
+bootJar { enabled = true }
+
+// 실행 jar가 우선이므로 일반 jar는 끕니다.
+jar { enabled = false }

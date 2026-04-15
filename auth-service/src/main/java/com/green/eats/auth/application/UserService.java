@@ -3,9 +3,12 @@ package com.green.eats.auth.application;
 import com.green.eats.auth.application.model.UserSigninReq;
 import com.green.eats.auth.application.model.UserSignupReq;
 import com.green.eats.auth.entity.User;
+import com.green.eats.common.constants.UserEventType;
+import com.green.eats.common.model.UserEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -16,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     public void signup(UserSignupReq req) {
         String hashedPassword = passwordEncoder.encode(req.getPassword());
@@ -29,6 +33,25 @@ public class UserService {
         newUser.setEnumUserRole( req.getUserRole() );
 
         userRepository.save(newUser);
+
+        UserEvent userEvent = UserEvent.builder()
+                                        .userId( newUser.getId() )
+                                        .name( newUser.getName() )
+                                        .eventType( UserEventType.CREATE )
+                                        .build();
+
+        kafkaTemplate.send("user-topic", String.valueOf(newUser.getId()), userEvent)
+                .whenComplete((result, ex) -> {
+            if (ex == null) {
+                // 성공 시 로그
+                log.info("✅ [Kafka Success] Topic: {}, Offset: {}",
+                        result.getRecordMetadata().topic(),
+                        result.getRecordMetadata().offset());
+            } else {
+                // 실패 시 로그
+                log.error("❌ [Kafka Failure] 원인: {}", ex.getMessage());
+            }
+        });
     }
 
     public User signin(UserSigninReq req) {

@@ -21,10 +21,7 @@ tasks.named('test') {
 }
 
 // 서비스 모듈은 실행 가능한 jar 파일로 빌드되어야 합니다.
-bootJar {
-	enabled = true
-}
+bootJar { enabled = true }
 
-jar {
-	enabled = false // 실행 jar가 우선이므로 일반 jar는 끕니다.
-}
+// 실행 jar가 우선이므로 일반 jar는 끕니다.
+jar { enabled = false }
