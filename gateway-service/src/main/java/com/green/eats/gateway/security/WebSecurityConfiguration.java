@@ -1,5 +1,6 @@
 package com.green.eats.gateway.security;
 
+import com.green.eats.common.model.EnumUserRole;
 import com.green.eats.gateway.filter.TokenAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -30,8 +31,8 @@ public class WebSecurityConfiguration {
                 .cors( cors -> cors.configurationSource(corsConfigurationSource()) )
                 //인가처리 (권한처리)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/order/**", "/api/store/menu").authenticated()
-
+                        .requestMatchers("/api/order/**").authenticated()
+                        .requestMatchers("/api/store/menu").hasRole(EnumUserRole.ADMIN.name())
                         .anyRequest().permitAll()
                 )
 

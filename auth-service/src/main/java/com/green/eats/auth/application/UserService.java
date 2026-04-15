@@ -26,6 +26,7 @@ public class UserService {
         newUser.setPassword( hashedPassword );
         newUser.setName( req.getName() );
         newUser.setAddress( req.getAddress() );
+        newUser.setEnumUserRole( req.getUserRole() );
 
         userRepository.save(newUser);
     }
