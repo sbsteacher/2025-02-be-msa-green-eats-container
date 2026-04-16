@@ -1,0 +1,37 @@
+constants:
+  api:
+    prefix: /api/user
+  enum:
+    scan-package: com.green.eats.common
+
+server:
+  port: 8080
+
+spring:
+  config:
+    import:
+      - optional:classpath:application-common.yaml
+      - optional:classpath:application-auth-prod.yaml
+  application:
+    name: auth-service
+  datasource:
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    url: jdbc:log4jdbc:mysql://localhost:3306/eats_user?createDatabaseIfNotExist=true&characterEncoding=UTF-8
+    username: root
+    password: green502
+  jpa:
+    hibernate:
+      ddl-auto: update
+  kafka:
+    # 도커로 띄운 카프카 주소
+    bootstrap-servers: localhost:9092
+    producer:
+      # 메시지의 키(Key)는 문자열로 보냅니다.
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      # 메시지의 값(Value)은 객체를 JSON으로 변환하여 보냅니다.
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all                  # 모든 replica 확인 후 ack
+      retries: 3
+      properties:
+        enable.idempotence: true  # 중복 발행 방지
+        max.in.flight.requests.per.connection: 5

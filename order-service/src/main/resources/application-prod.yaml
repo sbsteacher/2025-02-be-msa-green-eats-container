@@ -1,0 +1,29 @@
+constants:
+  api:
+    prefix: /api/order
+
+server:
+  port: 8082
+
+spring:
+  application:
+    name: order-service
+  config:
+    import:
+      - optional:classpath:application-common.yaml
+      - optional:classpath:application-auth-prod.yaml
+  datasource:
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    url: jdbc:log4jdbc:mysql://localhost:3306/eats_order?createDatabaseIfNotExist=true&characterEncoding=UTF-8
+    username: root
+    password: green502
+  jpa:
+    hibernate:
+      ddl-auto: update
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+
