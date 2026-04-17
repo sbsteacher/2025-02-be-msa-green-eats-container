@@ -34,6 +34,7 @@ public class UserService {
         newUser.setName( req.getName() );
         newUser.setAddress( req.getAddress() );
         newUser.setEnumUserRole( req.getUserRole() );
+        newUser.setIsDel( false );
 
         userRepository.save(newUser);
 
@@ -43,18 +44,7 @@ public class UserService {
                                         .eventType( UserEventType.CREATE )
                                         .build();
 
-        kafkaTemplate.send("user-topic", String.valueOf(newUser.getId()), userEvent)
-                .whenComplete((result, ex) -> {
-            if (ex == null) {
-                // 성공 시 로그
-                log.info("✅ [Kafka Success] Topic: {}, Offset: {}",
-                        result.getRecordMetadata().topic(),
-                        result.getRecordMetadata().offset());
-            } else {
-                // 실패 시 로그
-                log.error("❌ [Kafka Failure] 원인: {}", ex.getMessage());
-            }
-        });
+        kafkaSend(userEvent);
     }
 
     public User signin(UserSigninReq req) {
@@ -79,7 +69,25 @@ public class UserService {
                 .eventType( UserEventType.UPDATE )
                 .build();
 
-        kafkaTemplate.send("user-topic", String.valueOf(user.getId()), userEvent)
+        kafkaSend(userEvent);
+    }
+
+    @Transactional
+    public void delUser(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow();
+        user.setIsDel( true );
+
+        UserEvent userEvent = UserEvent.builder()
+                .userId( user.getId() )
+                .name( user.getName() )
+                .eventType( UserEventType.DELETE )
+                .build();
+
+        kafkaSend(userEvent);
+    }
+
+    private void kafkaSend(UserEvent userEvent) {
+        kafkaTemplate.send("user-topic", String.valueOf(userEvent.getUserId()), userEvent)
                 .whenComplete((result, ex) -> {
                     if (ex == null) {
                         // 성공 시 로그

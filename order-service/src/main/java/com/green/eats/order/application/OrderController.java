@@ -4,6 +4,7 @@ import com.green.eats.common.auth.UserContext;
 import com.green.eats.common.model.ResultResponse;
 import com.green.eats.common.model.UserDto;
 import com.green.eats.order.application.model.OrderPostReq;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;

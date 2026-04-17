@@ -65,4 +65,14 @@ public class UserController {
                 .resultMessage("수정 성공")
                 .build();
     }
+
+    @DeleteMapping
+    public ResultResponse<?> updUser() {
+        UserDto userDto = UserContext.get();
+        log.info("userDto: {}", userDto);
+        userService.delUser(userDto.id());
+        return ResultResponse.builder()
+                .resultMessage("삭제 성공")
+                .build();
+    }
 }
