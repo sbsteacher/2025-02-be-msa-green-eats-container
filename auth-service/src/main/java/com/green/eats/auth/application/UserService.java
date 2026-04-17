@@ -1,16 +1,19 @@
 package com.green.eats.auth.application;
 
+import com.green.eats.auth.application.model.UserPutReq;
 import com.green.eats.auth.application.model.UserSigninReq;
 import com.green.eats.auth.application.model.UserSignupReq;
 import com.green.eats.auth.entity.User;
 import com.green.eats.common.constants.UserEventType;
 import com.green.eats.common.model.UserEvent;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
@@ -61,6 +64,33 @@ public class UserService {
             notFoundUser();
         }
         return signedUser;
+    }
+
+    @Transactional
+    public void updUser(Long userId, UserPutReq req) {
+        User user = userRepository.findById(userId).orElseThrow();
+
+        user.setName( req.getName() );
+        user.setAddress( req.getAddress() );
+
+        UserEvent userEvent = UserEvent.builder()
+                .userId( user.getId() )
+                .name( user.getName() )
+                .eventType( UserEventType.UPDATE )
+                .build();
+
+        kafkaTemplate.send("user-topic", String.valueOf(user.getId()), userEvent)
+                .whenComplete((result, ex) -> {
+                    if (ex == null) {
+                        // 성공 시 로그
+                        log.info("✅ [Kafka Success] Topic: {}, Offset: {}",
+                                result.getRecordMetadata().topic(),
+                                result.getRecordMetadata().offset());
+                    } else {
+                        // 실패 시 로그
+                        log.error("❌ [Kafka Failure] 원인: {}", ex.getMessage());
+                    }
+                });
     }
 
     private void notFoundUser() {

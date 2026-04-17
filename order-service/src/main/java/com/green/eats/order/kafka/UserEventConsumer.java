@@ -33,7 +33,7 @@ public class UserEventConsumer {
                 userCacheRepository.save(userCache);
                 log.info("✅ UserCache 저장/업데이트 완료: {}", event.getUserId());
 
-            } else if ("DELETE".equals(type)) {
+            } else if (type == UserEventType.DELETE) {
                 // 회원 탈퇴 처리
                 userCacheRepository.deleteById(event.getUserId());
                 log.info("🗑️ UserCache 삭제 완료: {}", event.getUserId());
