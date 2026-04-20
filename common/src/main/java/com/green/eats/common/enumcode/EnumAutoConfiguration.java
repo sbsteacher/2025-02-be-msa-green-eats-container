@@ -18,7 +18,8 @@ import java.util.Map;
 public class EnumAutoConfiguration {
 
     @Bean
-    public EnumMapper enumMapper(ApplicationContext applicationContext, @Value("${constants.enum.scan-package:null}") String scanPackage) {
+    public EnumMapper enumMapper(ApplicationContext applicationContext
+            , @Value("${constants.enum.scan-package:null}") String scanPackage) {
         EnumMapper enumMapper = new EnumMapper();
         log.info("scanPackage: {}", scanPackage);
         //1. 스캔할 패키지 리스트 준비
