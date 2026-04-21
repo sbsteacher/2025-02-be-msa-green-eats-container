@@ -11,5 +11,5 @@ public class OrderPostReq {
     private List<OrderPostItemReq> items;
 
     @Positive(message = "0 이상이어야 합니다.")
-    private Long totalAmount;
+    private Integer totalAmount;
 }

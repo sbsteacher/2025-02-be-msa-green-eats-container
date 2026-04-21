@@ -12,7 +12,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,10 +24,27 @@ import java.util.List;
 @ConditionalOnProperty(name = "constants.exception.common-handler.enabled", havingValue = "true")
 public class ServiceExceptionHandler extends ResponseEntityExceptionHandler {
 
+    /**
+     * 주소는 맞지만 컨트롤러 매핑이 안 된 경우 (404)
+     * ResponseEntityExceptionHandler의 handleNoHandlerFoundException를 오버라이드
+     */
+    @Override
+    protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        return handleExceptionInternal(CommonErrorCode.NOT_FOUND_PATH);
+    }
+
+    /**
+     * 정적 리소스나 잘못된 경로 요청 시 (404)
+     * ResponseEntityExceptionHandler의 handleNoResourceFoundException를 오버라이드
+     */
+    @Override
+    protected ResponseEntity<Object> handleNoResourceFoundException(NoResourceFoundException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        return handleExceptionInternal(CommonErrorCode.NOT_FOUND_PATH);
+    }
+
     // 비즈니스 예외 처리
     @ExceptionHandler(BusinessException.class)
     protected ResponseEntity<Object> handleBusinessException(BusinessException e) {
-        log.error("BusinessException: {}", e.getErrorCode().getMessage());
         return handleExceptionInternal(e.getErrorCode());
     }
 

@@ -6,5 +6,5 @@ import lombok.Data;
 public class OrderPostItemReq {
     private Long menuId;
     private Integer quantity;
-    private Long price; // 단가
+    private Integer price; // 단가
 }

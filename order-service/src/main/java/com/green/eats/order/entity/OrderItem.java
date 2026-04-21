@@ -20,10 +20,10 @@ public class OrderItem {
 
     private Long menuId;
     private Integer quantity;
-    private Long price;
+    private Integer price;
 
     @Builder
-    public OrderItem(Long menuId, Integer quantity, Long price) {
+    public OrderItem(Long menuId, Integer quantity, Integer price) {
         this.menuId = menuId;
         this.quantity = quantity;
         this.price = price;
