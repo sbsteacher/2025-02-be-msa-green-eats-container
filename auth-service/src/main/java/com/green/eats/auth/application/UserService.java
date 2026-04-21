@@ -101,6 +101,7 @@ public class UserService {
     }
 
     private void notFoundUserAndNotMatchedPassword() {
-        throw new BusinessException(UserErrorCode.CHECK_EMAIL_PASSWORD);
+        //throw new BusinessException(UserErrorCode.CHECK_EMAIL_PASSWORD);
+        throw BusinessException.of(UserErrorCode.CHECK_EMAIL_PASSWORD);
     }
 }

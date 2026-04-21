@@ -21,13 +21,13 @@ public class OrderService {
     @Transactional
     public Long postOrder(Long userId, OrderPostReq req) {
         userCacheRepository.findById(userId)
-                .orElseThrow( () -> new BusinessException(CommonErrorCode.NO_EXISTED_USER) );
+                .orElseThrow( () -> new BusinessException( CommonErrorCode.NO_EXISTED_USER ) );
 
         Long totalAmount = req.getItems().stream()
                                          .mapToLong(item -> item.getQuantity() * item.getPrice())
                                          .sum();
 
-        if(!totalAmount.equals(req.getTotalAmount())) {
+        if(!totalAmount.equals(req.getTotalAmount())) { //Long != Long, ==, != 비교 안 된다.
             throw BusinessException.of( OrderErrorCode.NOT_MATCHED_ALL_AMOUNT );
         }
 
@@ -48,6 +48,6 @@ public class OrderService {
             order.addOrderItem(item); // 연관 관계 편의 메소드 활용
         });
 
-        return orderRepository.save(order).getId();
+        return orderRepository.save(order).getId(); //insert 후 pk값 리턴
     }
 }

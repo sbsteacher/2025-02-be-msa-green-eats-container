@@ -8,8 +8,10 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum OrderErrorCode implements ErrorCode {
-    NOT_MATCHED_ALL_AMOUNT("O001", "최종 결제 금액이 맞지않습니다.", HttpStatus.BAD_REQUEST)
+    NOT_MATCHED_ALL_AMOUNT("o001", "최종 결제 금액이 맞지않습니다.", HttpStatus.BAD_REQUEST)
+    , NAME("o002", "내용", HttpStatus.UNAUTHORIZED)
     ;
+
 
     private final String code;
     private final String message;
