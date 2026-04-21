@@ -18,7 +18,7 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    public ResultResponse<?> placeOrder(@RequestBody OrderPostReq req) {
+    public ResultResponse<?> postOrder(@RequestBody OrderPostReq req) {
         log.info("orderPostReq: {}", req);
         UserDto userDto = UserContext.get();
         Long orderId = orderService.postOrder(userDto.id(), req);

@@ -1,8 +1,11 @@
 package com.green.eats.order.application;
 
+import com.green.eats.common.exception.BusinessException;
+import com.green.eats.common.exception.CommonErrorCode;
 import com.green.eats.order.application.model.OrderPostReq;
 import com.green.eats.order.entity.Order;
 import com.green.eats.order.entity.OrderItem;
+import com.green.eats.order.exception.OrderErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,11 +21,15 @@ public class OrderService {
     @Transactional
     public Long postOrder(Long userId, OrderPostReq req) {
         userCacheRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자 정보가 없습니다."));
+                .orElseThrow( () -> new BusinessException(CommonErrorCode.NO_EXISTED_USER) );
 
         Long totalAmount = req.getItems().stream()
                                          .mapToLong(item -> item.getQuantity() * item.getPrice())
                                          .sum();
+
+        if(!totalAmount.equals(req.getTotalAmount())) {
+            throw BusinessException.of( OrderErrorCode.NOT_MATCHED_ALL_AMOUNT );
+        }
 
         // 1. 주문 마스터 생성
         Order order = Order.builder()
