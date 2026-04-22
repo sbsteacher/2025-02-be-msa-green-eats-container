@@ -24,7 +24,7 @@ public class UserEventConsumer {
         try {
             UserEventType type = event.getEventType();
 
-            if (type == UserEventType.CREATE || type == UserEventType.UPDATE) {
+            if (type == UserEventType.USER_CREATED || type == UserEventType.USER_UPDATED) {
                 // 저장 또는 수정 (Idempotent: 동일 ID면 덮어쓰기 됨)
                 UserCache userCache = UserCache.builder()
                         .userId(event.getUserId())
@@ -33,7 +33,7 @@ public class UserEventConsumer {
                 userCacheRepository.save(userCache);
                 log.info("✅ UserCache 저장/업데이트 완료: {}", event.getUserId());
 
-            } else if (type == UserEventType.DELETE) {
+            } else if (type == UserEventType.USER_DELETED) {
                 // 회원 탈퇴 처리
                 userCacheRepository.deleteById(event.getUserId());
                 log.info("🗑️ UserCache 삭제 완료: {}", event.getUserId());

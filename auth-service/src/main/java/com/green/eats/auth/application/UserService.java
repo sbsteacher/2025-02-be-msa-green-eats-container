@@ -1,5 +1,6 @@
 package com.green.eats.auth.application;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.green.eats.auth.application.model.UserPutReq;
 import com.green.eats.auth.application.model.UserSigninReq;
 import com.green.eats.auth.application.model.UserSignupReq;
@@ -8,12 +9,15 @@ import com.green.eats.auth.exception.UserErrorCode;
 import com.green.eats.common.constants.UserEventType;
 import com.green.eats.common.exception.BusinessException;
 import com.green.eats.common.model.UserEvent;
+import com.green.eats.common.outbox.Outbox;
+import com.green.eats.common.outbox.OutboxRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.ObjectMapper;
 
 @Slf4j
 @Service
@@ -22,7 +26,10 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final OutboxRepository outboxRepository;
+    private final ObjectMapper objectMapper;
 
+    @Transactional
     public void signup(UserSignupReq req) {
         String hashedPassword = passwordEncoder.encode(req.getPassword());
 
@@ -40,7 +47,7 @@ public class UserService {
         UserEvent userEvent = UserEvent.builder()
                                         .userId( newUser.getId() )
                                         .name( newUser.getName() )
-                                        .eventType( UserEventType.CREATE )
+                                        .eventType( UserEventType.USER_CREATED)
                                         .build();
 
         kafkaSend(userEvent);
@@ -65,7 +72,7 @@ public class UserService {
         UserEvent userEvent = UserEvent.builder()
                 .userId( user.getId() )
                 .name( user.getName() )
-                .eventType( UserEventType.UPDATE )
+                .eventType( UserEventType.USER_UPDATED)
                 .build();
 
         kafkaSend(userEvent);
@@ -79,25 +86,35 @@ public class UserService {
         UserEvent userEvent = UserEvent.builder()
                 .userId( user.getId() )
                 .name( user.getName() )
-                .eventType( UserEventType.DELETE )
+                .eventType( UserEventType.USER_DELETED)
                 .build();
 
         kafkaSend(userEvent);
     }
 
     private void kafkaSend(UserEvent userEvent) {
-        kafkaTemplate.send("user-topic", String.valueOf(userEvent.getUserId()), userEvent)
-                .whenComplete((result, ex) -> {
-                    if (ex == null) {
-                        // 성공 시 로그
-                        log.info("✅ [Kafka Success] Topic: {}, Offset: {}",
-                                result.getRecordMetadata().topic(),
-                                result.getRecordMetadata().offset());
-                    } else {
-                        // 실패 시 로그
-                        log.error("❌ [Kafka Failure] 원인: {}", ex.getMessage());
-                    }
-                });
+        String payload = objectMapper.writeValueAsString(userEvent);
+        Outbox outbox = Outbox.builder()
+                .topic("user-topic")
+                .aggregateId( userEvent.getUserId() )
+                .eventType( userEvent.getEventType().name() )
+                .payload( payload )
+                .build();
+
+        outboxRepository.save(outbox);
+
+//        kafkaTemplate.send("user-topic", String.valueOf(userEvent.getUserId()), userEvent)
+//                .whenComplete((result, ex) -> {
+//                    if (ex == null) {
+//                        // 성공 시 로그
+//                        log.info("✅ [Kafka Success] Topic: {}, Offset: {}",
+//                                result.getRecordMetadata().topic(),
+//                                result.getRecordMetadata().offset());
+//                    } else {
+//                        // 실패 시 로그
+//                        log.error("❌ [Kafka Failure] 원인: {}", ex.getMessage());
+//                    }
+//                });
     }
 
     private void notFoundUserAndNotMatchedPassword() {
