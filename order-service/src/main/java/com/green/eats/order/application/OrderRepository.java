@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
+    //JPQL
     @Query("SELECT new com.green.eats.order.application.model.OrderDto(o.id, o.totalAmount, o.status, u.name) " +
             "FROM Order o " +
             "JOIN UserCache u ON o.userId = u.userId " + // 외래키 관계가 없어도 가능

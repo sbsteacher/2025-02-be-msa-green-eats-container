@@ -23,3 +23,6 @@ spring:
       enabled: true
   jackson:
     default-property-inclusion: non_null #JSON 응답시 null 속성은 제외
+  web:
+    resources:
+      add-mappings: false #정적 리소스 탐색을 끈다.

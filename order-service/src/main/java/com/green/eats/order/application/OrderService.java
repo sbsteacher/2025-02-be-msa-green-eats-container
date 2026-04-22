@@ -14,9 +14,11 @@ import com.green.eats.order.openfeign.StoreClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -65,7 +67,7 @@ public class OrderService {
     public OrderGetPageRes getOrders(Long lastId) {
         int pageSize = 20;
 
-        PageRequest pageRequest = PageRequest.of(0, pageSize);
+        PageRequest pageRequest = PageRequest.of(0, pageSize); //JPA 페이징 처리, 이 코드에서는 LIMIT 역할만 한다.
 
         List<OrderDto> orders = orderRepository.findAllOrderListWithUser(lastId, pageRequest);
 
@@ -80,18 +82,30 @@ public class OrderService {
     public List<OrderGetDetailRes> getOrderDetail(Long orderId) {
         List<OrderItem> orderList = orderItemRepository.findAllByOrderId(orderId);
         List<Long> menuIds = orderList.stream()
-                                        .map(OrderItem::getMenuId)
-                                        .distinct() //중복 제거
-                                        .toList();
+                                      //.map(OrderItem::getMenuId)
+                                      .map( item -> item.getMenuId() )
+                                      .toList();
         Map<Long, MenuGetClientRes> menuMap = storeClient.getMenuDetail(menuIds);
 
+        List<OrderGetDetailRes> list = new ArrayList<>(orderList.size());
+        for(OrderItem item : orderList) {
+            OrderGetDetailRes res = OrderGetDetailRes.builder()
+                                                    .id(item.getId())
+                                                    .name(menuMap.get(item.getMenuId()).getName())
+                                                    .price(item.getPrice())
+                                                    .quantity(item.getQuantity())
+                                                    .build();
 
-        return orderList.stream().map(item -> OrderGetDetailRes.builder()
-                .id(item.getId())
-                .name(menuMap.get(item.getMenuId()).getName())
-                .price(item.getPrice())
-                .quantity(item.getQuantity())
-                .build()
-        ).toList();
+            list.add(res);
+        }
+        return list;
+
+//        return orderList.stream().map(item -> OrderGetDetailRes.builder()
+//                .id(item.getId())
+//                .name(menuMap.get(item.getMenuId()).getName())
+//                .price(item.getPrice())
+//                .quantity(item.getQuantity())
+//                .build()
+//        ).toList();
     }
 }

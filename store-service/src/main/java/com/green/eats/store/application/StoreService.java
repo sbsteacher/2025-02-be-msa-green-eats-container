@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -44,13 +45,24 @@ public class StoreService {
         // 1. Repository에서 IN 절을 사용하여 일괄 조회
         List<Menu> menus = menuRepository.findAllById(menuIds);
 
+        Map<Long, MenuGetClientRes> map = new HashMap<>();
+        for(Menu menu : menus) {
+            Long key = menu.getId();
+            MenuGetClientRes value = MenuGetClientRes.builder()
+                                                    .menuId(menu.getId())
+                                                    .name(menu.getName())
+                                                    .price(menu.getPrice())
+                                                    .build();
+            map.put(key, value);
+        }
+        return map;
         // 2. List > Map 변환 (Java Stream 사용)
-        return menus.stream()
-                .collect(Collectors.toMap( Menu::getId, menu -> MenuGetClientRes.builder()
-                        .menuId(menu.getId())
-                        .name(menu.getName())
-                        .price(menu.getPrice())
-                        .build()
-                ));
+//        return menus.stream()
+//                .collect(Collectors.toMap( Menu::getId, menu -> MenuGetClientRes.builder()
+//                        .menuId(menu.getId())
+//                        .name(menu.getName())
+//                        .price(menu.getPrice())
+//                        .build()
+//                ));
     }
 }

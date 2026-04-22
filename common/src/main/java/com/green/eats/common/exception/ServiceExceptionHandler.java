@@ -19,7 +19,6 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Slf4j
 @RestControllerAdvice
 @ConditionalOnProperty(name = "constants.exception.common-handler.enabled", havingValue = "true")
 public class ServiceExceptionHandler extends ResponseEntityExceptionHandler {
@@ -60,7 +59,6 @@ public class ServiceExceptionHandler extends ResponseEntityExceptionHandler {
     // 시스템 예외 처리 (예: DB 연결 실패 등)
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<Object> handleException(Exception e) {
-        log.error("Exception: ", e);
         MyErrorResponse response = new MyErrorResponse(
                 CommonErrorCode.INTERNAL_SERVER_ERROR.getCode(),
                 CommonErrorCode.INTERNAL_SERVER_ERROR.getMessage(),
