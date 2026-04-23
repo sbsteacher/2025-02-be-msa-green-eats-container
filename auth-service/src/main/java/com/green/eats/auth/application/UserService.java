@@ -25,7 +25,6 @@ import tools.jackson.databind.ObjectMapper;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final KafkaTemplate<String, Object> kafkaTemplate;
     private final OutboxRepository outboxRepository;
     private final ObjectMapper objectMapper;
 

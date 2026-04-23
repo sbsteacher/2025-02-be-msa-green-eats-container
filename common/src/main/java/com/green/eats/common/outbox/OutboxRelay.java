@@ -18,7 +18,7 @@ public class OutboxRelay {
     private final OutboxRepository outboxRepository;
     private final KafkaTemplate<String, String> kafkaTemplate;
 
-    // 5초마다 실행 (간격은 조절 가능)
+    // 10초마다 실행 (간격은 조절 가능)
     @Scheduled(fixedDelay = 10_000)
     @Transactional
     public void publishEvents() {
@@ -33,11 +33,6 @@ public class OutboxRelay {
                             if (ex == null) {
                                 // 성공 시 즉시 삭제
                                 outboxRepository.deleteById(outbox.getId());
-
-                            } else {
-                                log.error("Relay 전송 실패: {}", ex.getMessage());
-                                outbox.setStatus( OutboxStatus.FAILED );
-                                outboxRepository.save(outbox);
                             }
                         });
             } catch (Exception e) {
