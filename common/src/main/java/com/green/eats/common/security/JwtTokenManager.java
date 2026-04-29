@@ -29,16 +29,18 @@ public class JwtTokenManager { //인증 처리 총괄
         setRefreshTokenInCookie(res, jwtUser);
     }
 
-    public void setAccessTokenInCookie(HttpServletResponse res, JwtUser jwtUser) {
+    public String setAccessTokenInCookie(HttpServletResponse res, JwtUser jwtUser) {
         String accessToken = jwtTokenProvider.generateAccessToken(jwtUser);
         setAccessTokenInCookie(res, accessToken);
+        return accessToken;
     }
 
-    public void setRefreshTokenInCookie(HttpServletResponse res, JwtUser jwtUser) {
+    public String setRefreshTokenInCookie(HttpServletResponse res, JwtUser jwtUser) {
         String refreshToken = jwtTokenProvider.generateRefreshToken(jwtUser);
         String redisKey = String.format("RT-%d", jwtUser.getSignedUserId());
         redisService.save(redisKey, refreshToken, constJwt.refreshTokenCookieValiditySeconds());
         setRefreshTokenInCookie(res, refreshToken);
+        return refreshToken;
     }
 
     //AT를 쿠키에 담는다.
