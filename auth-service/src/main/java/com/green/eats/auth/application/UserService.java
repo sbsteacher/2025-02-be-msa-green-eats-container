@@ -11,6 +11,7 @@ import com.green.eats.common.exception.BusinessException;
 import com.green.eats.common.model.UserEvent;
 import com.green.eats.common.outbox.Outbox;
 import com.green.eats.common.outbox.OutboxRepository;
+import com.green.eats.common.redis.RedisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;

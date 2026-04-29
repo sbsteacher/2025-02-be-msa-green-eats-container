@@ -3,9 +3,11 @@ package com.green.eats.store.application;
 import com.green.eats.common.model.MenuGetClientRes;
 import com.green.eats.store.application.model.MenuGetRes;
 import com.green.eats.store.application.model.MenuPostReq;
+import com.green.eats.store.configuration.constants.ConstRedisCache;
 import com.green.eats.store.entity.Menu;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,6 +26,7 @@ public class StoreService {
         menuRepository.save(menu);
     }
 
+    @Cacheable(cacheNames = ConstRedisCache.menuList)
     public List<MenuGetRes> getAllMenus() {
         List<Menu> menuList = menuRepository.findAll();
 
@@ -40,6 +43,7 @@ public class StoreService {
 
         return resList;
     }
+
 
     public Map<Long, MenuGetClientRes> getMenuListByIds(List<Long> menuIds) {
         // 1. Repository에서 IN 절을 사용하여 일괄 조회

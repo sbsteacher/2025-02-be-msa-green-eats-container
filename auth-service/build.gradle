@@ -1,6 +1,9 @@
 dependencies {
 	// 1. 공통 모듈 의존성 주입 (가장 중요)
 	implementation project(':common')
+	// Spring Data Redis 라이브러리
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 	implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16'
 	// JSON 처리를 위한 Jackson
 	implementation 'io.jsonwebtoken:jjwt-api:0.13.0'

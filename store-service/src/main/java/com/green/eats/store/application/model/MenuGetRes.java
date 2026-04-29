@@ -4,8 +4,10 @@ package com.green.eats.store.application.model;
 import com.green.eats.store.entity.Menu;
 import com.green.eats.store.enumcode.EnumMenuCategory;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 public class MenuGetRes {
     private Long id;
     private String name;

@@ -1,0 +1,11 @@
+spring:
+  data:
+    redis:
+      host: localhost  # docker-compose의 서비스명
+      port: 6379
+
+
+logging:
+  level:
+    org.springframework.data.redis: DEBUG
+    org.springframework.cache: TRACE # 캐시 당첨/실패 여부를 아주 상세히 알려줍니다.

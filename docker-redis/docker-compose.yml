@@ -1,0 +1,32 @@
+services:
+  # Redis 엔진 서비스
+  redis:
+    image: redis:latest
+    container_name: msa-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - msa-network
+
+  # Redis 시각화 관리 도구 (GUI)
+  redis-insight:
+    image: redis/redisinsight:latest
+    container_name: redis-insight
+    restart: unless-stopped
+    ports:
+      - "8001:5540"
+    networks:
+      - msa-network
+
+# 데이터 영구 저장을 위한 볼륨 정의
+volumes:
+  redis_data:
+
+# 서비스 간 내부 통신을 위한 네트워크 정의
+networks:
+  msa-network:
+    driver: bridge
