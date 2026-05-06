@@ -33,6 +33,7 @@ spec:
         booleanParam(name: 'FORCE_BUILD_ALL', defaultValue: false, description: '모든 서비스를 강제로 빌드합니다.')
         booleanParam(name: 'FORCE_AUTH', defaultValue: false, description: 'Auth-Service를 강제로 빌드합니다.')
         booleanParam(name: 'FORCE_STORE', defaultValue: false, description: 'Store-Service를 강제로 빌드합니다.')
+        booleanParam(name: 'FORCE_ORDER', defaultValue: false, description: 'Order-Service를 강제로 빌드합니다.')
         booleanParam(name: 'FORCE_GATEWAY', defaultValue: false, description: 'Gateway-Service를 강제로 빌드합니다.')
     }
 
@@ -74,7 +75,7 @@ spec:
                     }
                 }
 
-                // --- [Store-Service] ---
+                // --- [Order-Service] ---
                 stage('Order-Service') {
                     when {
                         anyOf {
