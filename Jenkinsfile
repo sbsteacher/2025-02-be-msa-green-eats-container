@@ -36,9 +36,11 @@ spec:
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main',
+                git(
+                    branch: 'main',
                     credentialsId: 'github-token-id'
                     url: 'https://github.com/sbsteacher/2025-02-be-msa-green-eats-container.git'
+                )
             }
         }
 
