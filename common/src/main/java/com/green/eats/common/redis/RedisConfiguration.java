@@ -16,7 +16,7 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
-
+// Redis 설정
 @Configuration
 @ConditionalOnClass(RedisTemplate.class)
 public class RedisConfiguration {
@@ -40,7 +40,7 @@ public class RedisConfiguration {
     }
 
 
-    // 각 서비스에서 공통으로 사용할 "기본 설정" 빌더
+    // 각 서비스에서 공통으로 사용할 캐시 "기본 설정" 빌더
     public static RedisCacheConfiguration defaultCacheConfig() {
         return RedisCacheConfiguration.defaultCacheConfig()
                 .disableCachingNullValues()

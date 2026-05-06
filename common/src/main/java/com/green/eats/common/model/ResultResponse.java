@@ -1,11 +1,10 @@
 package com.green.eats.common.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 public class ResultResponse <T> {
     private String resultMessage;

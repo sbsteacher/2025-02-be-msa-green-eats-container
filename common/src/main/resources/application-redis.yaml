@@ -3,7 +3,7 @@ spring:
     redis:
       host: localhost  # docker-compose의 서비스명
       port: 6379
-
+      database: 0
 
 logging:
   level:

@@ -29,18 +29,16 @@ public class JwtTokenManager { //인증 처리 총괄
         setRefreshTokenInCookie(res, jwtUser);
     }
 
-    public String setAccessTokenInCookie(HttpServletResponse res, JwtUser jwtUser) {
+    public void setAccessTokenInCookie(HttpServletResponse res, JwtUser jwtUser) {
         String accessToken = jwtTokenProvider.generateAccessToken(jwtUser);
         setAccessTokenInCookie(res, accessToken);
-        return accessToken;
     }
 
-    public String setRefreshTokenInCookie(HttpServletResponse res, JwtUser jwtUser) {
+    public void setRefreshTokenInCookie(HttpServletResponse res, JwtUser jwtUser) {
         String refreshToken = jwtTokenProvider.generateRefreshToken(jwtUser);
         String redisKey = String.format("RT-%d", jwtUser.getSignedUserId());
         redisService.save(redisKey, refreshToken, constJwt.refreshTokenCookieValiditySeconds());
         setRefreshTokenInCookie(res, refreshToken);
-        return refreshToken;
     }
 
     //AT를 쿠키에 담는다.
@@ -105,8 +103,12 @@ public class JwtTokenManager { //인증 처리 총괄
         //req에서 RT을 얻어야 한다.
         String refreshToken = getRefreshTokenFromCookie(req);
 
+
+
         //RT를 이용하여 JwtUser 객체를 만든다.
         JwtUser jwtUser = jwtTokenProvider.getJwtUserFromToken(refreshToken);
+
+        //Redis에 refreshToken있는지
 
         //JwtUser를 이용하여 AT를 만들어 cookie에 담아주세요.
         setAccessTokenInCookie(res, jwtUser);

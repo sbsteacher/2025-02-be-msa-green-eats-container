@@ -1,6 +1,5 @@
 package com.green.eats.auth.application;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.green.eats.auth.application.model.UserPutReq;
 import com.green.eats.auth.application.model.UserSigninReq;
 import com.green.eats.auth.application.model.UserSignupReq;
@@ -11,10 +10,8 @@ import com.green.eats.common.exception.BusinessException;
 import com.green.eats.common.model.UserEvent;
 import com.green.eats.common.outbox.Outbox;
 import com.green.eats.common.outbox.OutboxRepository;
-import com.green.eats.common.redis.RedisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

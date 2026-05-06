@@ -19,7 +19,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class StoreCacheConfiguration {
 
-
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
         log.info("✅ RedisCacheManager 로딩됨!");
@@ -33,8 +32,8 @@ public class StoreCacheConfiguration {
         //configurations.put("deliveryStatus", baseConfig.entryTtl(Duration.ofMinutes(1))); // 배송은 짧게
 
         return RedisCacheManager.builder(connectionFactory)
-                .cacheDefaults(baseConfig.entryTtl(Duration.ofMinutes(30))) // 기본 30분
-                .withInitialCacheConfigurations(configurations)
-                .build();
+                                .cacheDefaults(baseConfig.entryTtl(Duration.ofMinutes(30))) // 기본 30분
+                                .withInitialCacheConfigurations(configurations)
+                                .build();
     }
 }

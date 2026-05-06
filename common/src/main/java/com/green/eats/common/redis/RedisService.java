@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 
+//Redis 사용 용도 (CRUD)
+
 @Service
 @RequiredArgsConstructor
 @ConditionalOnClass(RedisTemplate.class)
