@@ -3,6 +3,7 @@ package com.green.eats.gateway;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+//build-all
 @SpringBootApplication
 public class GatewayServiceApplication {
     public static void main(String[] args) {
