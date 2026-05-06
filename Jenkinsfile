@@ -37,7 +37,7 @@ spec:
     }
 
     environment {
-        REGISTRY = "192.168.0.120:8080"
+        REGISTRY = "harbor.greenart.n-e.kr"
         PROJECT  = "green-eats"
     }
 
@@ -71,6 +71,21 @@ spec:
                     }
                     steps {
                         script { buildAndPush("store-service") }
+                    }
+                }
+
+                // --- [Store-Service] ---
+                stage('Order-Service') {
+                    when {
+                        anyOf {
+                            changeset "order-service/**"
+                            changeset "common/**"
+                            expression { params.FORCE_BUILD_ALL || params.FORCE_STORE }
+                            expression { hasCommitTag("order") }
+                        }
+                    }
+                    steps {
+                        script { buildAndPush("order-service") }
                     }
                 }
 
