@@ -28,7 +28,6 @@ spec:
         }
     }
 
-    // [1] 수동 제어를 위한 매개변수 설정
     parameters {
         booleanParam(name: 'FORCE_BUILD_ALL', defaultValue: false, description: '모든 서비스를 강제로 빌드합니다.')
         booleanParam(name: 'FORCE_AUTH', defaultValue: false, description: 'Auth-Service를 강제로 빌드합니다.')
@@ -81,7 +80,7 @@ spec:
                         anyOf {
                             changeset "order-service/**"
                             changeset "common/**"
-                            expression { params.FORCE_BUILD_ALL || params.FORCE_STORE }
+                            expression { params.FORCE_BUILD_ALL || params.FORCE_ORDER }
                             expression { hasCommitTag("order") }
                         }
                     }
@@ -109,10 +108,6 @@ spec:
     }
 }
 
-/**
- * [도움 함수] 커밋 메시지에서 태그를 검색합니다.
- * 검색 대상: [build-all] 또는 [서비스명] (예: [auth])
- */
 def hasCommitTag(String tag) {
     def changeLogSets = currentBuild.changeSets
     for (int i = 0; i < changeLogSets.size(); i++) {
@@ -134,8 +129,9 @@ def hasCommitTag(String tag) {
 def buildAndPush(String serviceName) {
     // 1. Gradle 빌드 (JAR 생성)
     container('gradle') {
-        sh "chmod +x gradlew" // 실행 권한 부여
-        sh "./gradlew :${serviceName}:clean :${serviceName}:bootJar"
+        sh "chmod +x gradlew" 
+        // 요청하신 대로 clean 후 특정 서비스의 build(컴파일 포함)를 수행하며 테스트는 제외합니다.
+        sh "./gradlew clean :${serviceName}:build -x test"
     }
 
     // 2. Kaniko 빌드 및 Harbor 푸시 (이미지 생성)
