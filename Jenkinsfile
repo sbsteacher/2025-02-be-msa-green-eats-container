@@ -34,17 +34,11 @@ spec:
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
         stage('Build and Push Services') {
             parallel {
                 // [1] Auth Service
                 stage('Auth-Service') {
-                    when { anyOf { changeset "auth-service/**"; changeset "common/**" } }
+                    // when { anyOf { changeset "auth-service/**"; changeset "common/**" } }
                     steps {
                         script { buildAndPush("auth-service") }
                     }
