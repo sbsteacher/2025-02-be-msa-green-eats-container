@@ -28,6 +28,14 @@ spec:
         }
     }
 
+    // [1] 수동 제어를 위한 매개변수 설정
+    parameters {
+        booleanParam(name: 'FORCE_BUILD_ALL', defaultValue: false, description: '모든 서비스를 강제로 빌드합니다.')
+        booleanParam(name: 'FORCE_AUTH', defaultValue: false, description: 'Auth-Service를 강제로 빌드합니다.')
+        booleanParam(name: 'FORCE_STORE', defaultValue: false, description: 'Store-Service를 강제로 빌드합니다.')
+        booleanParam(name: 'FORCE_GATEWAY', defaultValue: false, description: 'Gateway-Service를 강제로 빌드합니다.')
+    }
+
     environment {
         REGISTRY = "192.168.0.120:8080"
         PROJECT  = "green-eats"
@@ -36,23 +44,46 @@ spec:
     stages {
         stage('Build and Push Services') {
             parallel {
-                // [1] Auth Service
+                // --- [Auth-Service] ---
                 stage('Auth-Service') {
-                    // when { anyOf { changeset "auth-service/**"; changeset "common/**" } }
+                    when {
+                        anyOf {
+                            changeset "auth-service/**"
+                            changeset "common/**"
+                            expression { params.FORCE_BUILD_ALL || params.FORCE_AUTH }
+                            expression { hasCommitTag("auth") }
+                        }
+                    }
                     steps {
                         script { buildAndPush("auth-service") }
                     }
                 }
-                // [2] Store Service
+
+                // --- [Store-Service] ---
                 stage('Store-Service') {
-                    // when { anyOf { changeset "store-service/**"; changeset "common/**" } }
+                    when {
+                        anyOf {
+                            changeset "store-service/**"
+                            changeset "common/**"
+                            expression { params.FORCE_BUILD_ALL || params.FORCE_STORE }
+                            expression { hasCommitTag("store") }
+                        }
+                    }
                     steps {
                         script { buildAndPush("store-service") }
                     }
                 }
-                // [3] Gateway Service
+
+                // --- [Gateway-Service] ---
                 stage('Gateway-Service') {
-                    // when { anyOf { changeset "gateway-service/**"; changeset "common/**" } }
+                    when {
+                        anyOf {
+                            changeset "gateway-service/**"
+                            changeset "common/**"
+                            expression { params.FORCE_BUILD_ALL || params.FORCE_GATEWAY }
+                            expression { hasCommitTag("gateway") }
+                        }
+                    }
                     steps {
                         script { buildAndPush("gateway-service") }
                     }
@@ -62,12 +93,36 @@ spec:
     }
 }
 
-// 중복 코드를 줄이기 위한 함수 정의
+/**
+ * [도움 함수] 커밋 메시지에서 태그를 검색합니다.
+ * 검색 대상: [build-all] 또는 [서비스명] (예: [auth])
+ */
+def hasCommitTag(String tag) {
+    def changeLogSets = currentBuild.changeSets
+    for (int i = 0; i < changeLogSets.size(); i++) {
+        def entries = changeLogSets[i].items
+        for (int j = 0; j < entries.size(); j++) {
+            def entry = entries[j]
+            def msg = entry.msg.toLowerCase()
+            if (msg.contains("[build-all]") || msg.contains("[${tag}]")) {
+                return true
+            }
+        }
+    }
+    return false
+}
+
+/**
+ * [도움 함수] Gradle 빌드 및 Kaniko 이미지 푸시를 수행합니다.
+ */
 def buildAndPush(String serviceName) {
+    // 1. Gradle 빌드 (JAR 생성)
     container('gradle') {
-        sh "chmod +x gradlew"
+        sh "chmod +x gradlew" // 실행 권한 부여
         sh "./gradlew :${serviceName}:clean :${serviceName}:bootJar"
     }
+
+    // 2. Kaniko 빌드 및 Harbor 푸시 (이미지 생성)
     container('kaniko') {
         sh """
         /kaniko/executor --context ${WORKSPACE} \
