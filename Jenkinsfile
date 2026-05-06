@@ -39,73 +39,64 @@ spec:
     environment {
         REGISTRY = "harbor.greenart.n-e.kr"
         PROJECT  = "green-eats"
+        // 빌드 대상 서비스를 리스트로 관리
+        SERVICES = "auth-service,store-service,order-service,gateway-service"
     }
 
     stages {
-        stage('Build and Push Services') {
-            parallel {
-                // --- [Auth-Service] ---
-                stage('Auth-Service') {
-                    when {
-                        anyOf {
-                            changeset "auth-service/**"
-                            changeset "common/**"
-                            expression { params.FORCE_BUILD_ALL || params.FORCE_AUTH }
-                            expression { hasCommitTag("auth") }
+        stage('Parallel Gradle Build') {
+            steps {
+                script {
+                    def buildTasks = [:]
+                    def serviceList = env.SERVICES.split(',')
+                    
+                    serviceList.each { service ->
+                        def serviceName = service.trim()
+                        if (shouldBuild(serviceName)) {
+                            buildTasks[serviceName] = {
+                                container('gradle') {
+                                    sh "chmod +x gradlew"
+                                    sh "./gradlew :${serviceName}:clean :${serviceName}:build -x test"
+                                }
+                            }
                         }
                     }
-                    steps {
-                        script { buildAndPush("auth-service") }
-                    }
+                    // Gradle 빌드만 병렬로 실행하여 시간 단축
+                    parallel buildTasks
                 }
+            }
+        }
 
-                // --- [Store-Service] ---
-                stage('Store-Service') {
-                    when {
-                        anyOf {
-                            changeset "store-service/**"
-                            changeset "common/**"
-                            expression { params.FORCE_BUILD_ALL || params.FORCE_STORE }
-                            expression { hasCommitTag("store") }
+        stage('Sequential Image Push') {
+            steps {
+                script {
+                    def serviceList = env.SERVICES.split(',')
+                    serviceList.each { service ->
+                        def serviceName = service.trim()
+                        if (shouldBuild(serviceName)) {
+                            // Kaniko 푸시는 하나씩 순차적으로 진행하여 충돌 방지
+                            pushImage(serviceName)
                         }
-                    }
-                    steps {
-                        script { buildAndPush("store-service") }
-                    }
-                }
-
-                // --- [Order-Service] ---
-                stage('Order-Service') {
-                    when {
-                        anyOf {
-                            changeset "order-service/**"
-                            changeset "common/**"
-                            expression { params.FORCE_BUILD_ALL || params.FORCE_ORDER }
-                            expression { hasCommitTag("order") }
-                        }
-                    }
-                    steps {
-                        script { buildAndPush("order-service") }
-                    }
-                }
-
-                // --- [Gateway-Service] ---
-                stage('Gateway-Service') {
-                    when {
-                        anyOf {
-                            changeset "gateway-service/**"
-                            changeset "common/**"
-                            expression { params.FORCE_BUILD_ALL || params.FORCE_GATEWAY }
-                            expression { hasCommitTag("gateway") }
-                        }
-                    }
-                    steps {
-                        script { buildAndPush("gateway-service") }
                     }
                 }
             }
         }
     }
+}
+
+// 빌드 대상인지 판별하는 함수
+def shouldBuild(String serviceName) {
+    def tagMap = [
+        'auth-service': 'auth',
+        'store-service': 'store',
+        'order-service': 'order',
+        'gateway-service': 'gateway'
+    ]
+    def paramName = "FORCE_${tagMap[serviceName].toUpperCase()}"
+    
+    return params.FORCE_BUILD_ALL || params."${paramName}" || 
+           currentBuild.changeSets.any { set -> set.items.any { it.path.contains(serviceName) || it.path.contains("common/") } } ||
+           hasCommitTag(tagMap[serviceName])
 }
 
 def hasCommitTag(String tag) {
@@ -123,19 +114,9 @@ def hasCommitTag(String tag) {
     return false
 }
 
-/**
- * [도움 함수] Gradle 빌드 및 Kaniko 이미지 푸시를 수행합니다.
- */
-def buildAndPush(String serviceName) {
-    // 1. Gradle 빌드 (JAR 생성)
-    container('gradle') {
-        sh "chmod +x gradlew" 
-        // 요청하신 대로 clean 후 특정 서비스의 build(컴파일 포함)를 수행하며 테스트는 제외합니다.
-        sh "./gradlew clean :${serviceName}:build -x test"
-    }
-
-    // 2. Kaniko 빌드 및 Harbor 푸시 (이미지 생성)
+def pushImage(String serviceName) {
     container('kaniko') {
+        echo "Pushing image for ${serviceName}..."
         sh """
         /kaniko/executor --context ${WORKSPACE} \
             --dockerfile ${WORKSPACE}/${serviceName}/Dockerfile \
