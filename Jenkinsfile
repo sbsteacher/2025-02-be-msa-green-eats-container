@@ -45,14 +45,14 @@ spec:
                 }
                 // [2] Store Service
                 stage('Store-Service') {
-                    when { anyOf { changeset "store-service/**"; changeset "common/**" } }
+                    // when { anyOf { changeset "store-service/**"; changeset "common/**" } }
                     steps {
                         script { buildAndPush("store-service") }
                     }
                 }
                 // [3] Gateway Service
                 stage('Gateway-Service') {
-                    when { anyOf { changeset "gateway-service/**"; changeset "common/**" } }
+                    // when { anyOf { changeset "gateway-service/**"; changeset "common/**" } }
                     steps {
                         script { buildAndPush("gateway-service") }
                     }
@@ -65,6 +65,7 @@ spec:
 // 중복 코드를 줄이기 위한 함수 정의
 def buildAndPush(String serviceName) {
     container('gradle') {
+        sh "chmod +x gradlew"
         sh "./gradlew :${serviceName}:clean :${serviceName}:bootJar"
     }
     container('kaniko') {
