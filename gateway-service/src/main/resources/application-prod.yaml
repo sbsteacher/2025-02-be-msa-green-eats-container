@@ -32,8 +32,8 @@ spring:
 
           # 라우팅 설정
           routes:
-            - id: user-service
-              uri: lb://user-service
+            - id: auth-service
+              uri: lb://auth-service
               predicates:
                 - Path=/api/user/**
 
