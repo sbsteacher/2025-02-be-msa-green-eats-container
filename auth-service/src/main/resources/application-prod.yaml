@@ -4,6 +4,7 @@ constants:
   enum:
     scan-package: com.green.eats.common
 
+# server.port 8080으로 통일
 server:
   port: 8080
 

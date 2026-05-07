@@ -1,0 +1,56 @@
+management:
+  endpoint:
+    gateway:
+      enabled: true
+
+# server.port 8080으로 통일
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway-service
+  config:
+    import:
+      - optional:classpath:application-common.yaml
+      - optional:classpath:application-auth-prod.yaml
+  cloud:
+    gateway:
+      # 4.0.x 버전 Servlet Gateway의 핵심 설정 프리픽스
+      server:
+        webmvc:
+          actuator:
+            enabled: true
+          cors: # cors 허용
+            configurations:
+              '[/**]':
+                allowed-origins: [ "http://localhost:5173" ]
+                allowed-methods: [ "*" ]
+                allowed-headers: [ "*" ]
+                allow-credentials: true
+                max-age: 3600
+
+          # 라우팅 설정
+          routes:
+            - id: user-service
+              uri: lb://user-service
+              predicates:
+                - Path=/api/user/**
+
+            - id: store-service
+              uri: lb://store-service
+              predicates:
+                - Path=/api/store/**
+
+            - id: order-service
+              uri: lb://order-service
+              predicates:
+                - Path=/api/order, /api/order/**
+    kubernetes:
+      discovery:
+        enabled: true
+      reload:
+        enabled: true
+        strategy: refresh
+
+

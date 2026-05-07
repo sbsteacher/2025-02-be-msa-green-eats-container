@@ -2,8 +2,9 @@ constants:
   api:
     prefix: /api/order
 
+# server.port 8080으로 통일
 server:
-  port: 8082
+  port: 8080
 
 spring:
   application:

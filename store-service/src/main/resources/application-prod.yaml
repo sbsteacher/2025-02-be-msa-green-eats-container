@@ -2,8 +2,9 @@ constants:
   api:
     prefix: /api/store
 
+# server.port 8080으로 통일
 server:
-  port: 8081
+  port: 8080
 
 spring:
   application:
