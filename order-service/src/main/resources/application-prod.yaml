@@ -15,7 +15,7 @@ spring:
       - optional:classpath:application-auth-prod.yaml
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:log4jdbc:mysql://112.222.157.157:5011/eats_order?createDatabaseIfNotExist=true&characterEncoding=UTF-8
+    url: jdbc:mysql://112.222.157.157:5011/eats_order?createDatabaseIfNotExist=true&characterEncoding=UTF-8
     username: green1
     password: spring502
   jpa:
