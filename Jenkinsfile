@@ -120,7 +120,7 @@ def pushImage(String serviceName) {
         sh """
         /kaniko/executor --context ${WORKSPACE} \
             --dockerfile ${WORKSPACE}/${serviceName}/Dockerfile \
-            --destination ${REGISTRY}/${PROJECT}/${serviceName}:${BUILD_NUMBER} \
+            --destination ${REGISTRY}/${PROJECT}/${serviceName}:${env.BUILD_NUMBER} \
             --skip-tls-verify
         """
     }

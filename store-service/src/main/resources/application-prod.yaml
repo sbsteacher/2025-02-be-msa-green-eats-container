@@ -1,0 +1,24 @@
+constants:
+  api:
+    prefix: /api/store
+
+server:
+  port: 8081
+
+spring:
+  application:
+    name: store-service
+  config:
+    import:
+      - optional:classpath:application-common.yaml
+      - optional:classpath:application-auth-prod.yaml
+      - optional:classpath:application-jpa-prod.yaml
+      - optional:classpath:application-redis.yaml
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:log4jdbc:mysql://112.222.157.157:5011/eats_store?createDatabaseIfNotExist=true&characterEncoding=UTF-8
+    username: green1
+    password: spring502
+  jpa:
+    hibernate:
+      ddl-auto: none
