@@ -57,6 +57,10 @@ spec:
                                 container('gradle') {
                                     sh "chmod +x gradlew"
                                     sh "./gradlew :${serviceName}:clean :${serviceName}:build -x test"
+
+                                    // [현장 검증 코드] 생성된 JAR 파일 목록을 로그에 출력합니다.
+                                    echo "--- [${serviceName}] 빌드 결과물 확인 ---"
+                                    sh "ls -lh ${serviceName}/build/libs/"
                                 }
                             }
                         }
