@@ -39,7 +39,6 @@ spec:
     environment {
         REGISTRY = "harbor.greenart.n-e.kr"
         PROJECT  = "green-eats"
-        // 빌드 대상 서비스를 리스트로 관리
         SERVICES = "auth-service,store-service,order-service,gateway-service"
     }
 
@@ -49,7 +48,7 @@ spec:
                 script {
                     def buildTasks = [:]
                     def serviceList = env.SERVICES.split(',')
-                    
+
                     serviceList.each { service ->
                         def serviceName = service.trim()
                         if (shouldBuild(serviceName)) {
@@ -57,16 +56,17 @@ spec:
                                 container('gradle') {
                                     sh "chmod +x gradlew"
                                     sh "./gradlew :${serviceName}:clean :${serviceName}:build -x test"
-
-                                    // [현장 검증 코드] 생성된 JAR 파일 목록을 로그에 출력합니다.
                                     echo "--- [${serviceName}] 빌드 결과물 확인 ---"
                                     sh "ls -lh ${serviceName}/build/libs/"
                                 }
                             }
                         }
                     }
-                    // Gradle 빌드만 병렬로 실행하여 시간 단축
-                    parallel buildTasks
+                    if (buildTasks) {
+                        parallel buildTasks
+                    } else {
+                        echo "빌드할 변경 사항이 없습니다."
+                    }
                 }
             }
         }
@@ -78,7 +78,6 @@ spec:
                     serviceList.each { service ->
                         def serviceName = service.trim()
                         if (shouldBuild(serviceName)) {
-                            // Kaniko 푸시는 하나씩 순차적으로 진행하여 충돌 방지
                             pushImage(serviceName)
                         }
                     }
@@ -88,7 +87,7 @@ spec:
     }
 }
 
-// 빌드 대상인지 판별하는 함수
+// [수정 포인트] 변경된 파일 경로를 정확히 감지하는 함수
 def shouldBuild(String serviceName) {
     def tagMap = [
         'auth-service': 'auth',
@@ -96,18 +95,42 @@ def shouldBuild(String serviceName) {
         'order-service': 'order',
         'gateway-service': 'gateway'
     ]
+
+    // 1. 강제 빌드 파라미터 체크
     def paramName = "FORCE_${tagMap[serviceName].toUpperCase()}"
-    
-    return params.FORCE_BUILD_ALL || params."${paramName}" || 
-           currentBuild.changeSets.any { set -> set.items.any { it.path.contains(serviceName) || it.path.contains("common/") } } ||
-           hasCommitTag(tagMap[serviceName])
+    if (params.FORCE_BUILD_ALL || params."${paramName}") {
+        return true
+    }
+
+    // 2. 커밋 메시지 태그 체크
+    if (hasCommitTag(tagMap[serviceName])) {
+        return true
+    }
+
+    // 3. [에러 해결] 변경 이력 기반 체크
+    def changeLogSets = currentBuild.changeSets
+    for (int i = 0; i < changeLogSets.size(); i++) {
+        def entries = changeLogSets[i].items
+        for (int j = 0; j < entries.length; j++) {
+            def entry = entries[j]
+            // affectedFiles를 사용하여 각 파일의 경로에 접근합니다.
+            def files = entry.affectedFiles
+            for (int k = 0; k < files.size(); k++) {
+                def file = files[k]
+                if (file.path.contains(serviceName) || file.path.contains("common/")) {
+                    return true
+                }
+            }
+        }
+    }
+    return false
 }
 
 def hasCommitTag(String tag) {
     def changeLogSets = currentBuild.changeSets
     for (int i = 0; i < changeLogSets.size(); i++) {
         def entries = changeLogSets[i].items
-        for (int j = 0; j < entries.size(); j++) {
+        for (int j = 0; j < entries.length; j++) {
             def entry = entries[j]
             def msg = entry.msg.toLowerCase()
             if (msg.contains("[build-all]") || msg.contains("[${tag}]")) {
