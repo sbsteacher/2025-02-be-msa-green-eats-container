@@ -14,7 +14,7 @@ spring:
       - optional:classpath:application-common.yaml
       - optional:classpath:application-auth-prod.yaml
       - optional:classpath:application-jpa-prod.yaml
-      - optional:classpath:application-redis.yaml
+      - optional:classpath:application-redis-prod.yaml
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://112.222.157.157:5011/my_eats_store?useInformationSchema=true&createDatabaseIfNotExist=true&characterEncoding=UTF-8

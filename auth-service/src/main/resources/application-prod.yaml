@@ -2,7 +2,7 @@ constants:
   api:
     prefix: /api/user
   enum:
-    scan-package: com.green.eats.common
+    scan-package: com.green.eats.common.model
 
 # server.port 8080으로 통일
 server:
@@ -13,6 +13,8 @@ spring:
     import:
       - optional:classpath:application-common.yaml
       - optional:classpath:application-auth-prod.yaml
+      - optional:classpath:application-jpa-prod.yaml
+      - optional:classpath:application-redis-prod.yaml
   application:
     name: auth-service
   datasource:
@@ -24,8 +26,8 @@ spring:
     hibernate:
       ddl-auto: none
   kafka:
-    # 도커로 띄운 카프카 주소
-    bootstrap-servers: localhost:9092
+    # 서비스명(kafka) + 네임스페이스(infra) + 포트(9092)
+    bootstrap-servers: kafka.infra.svc.cluster.local:9092
     producer:
       # 메시지의 키(Key)는 문자열로 보냅니다.
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
