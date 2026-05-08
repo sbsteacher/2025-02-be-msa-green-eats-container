@@ -24,7 +24,7 @@ spring:
           cors: # cors 허용
             configurations:
               '[/**]':
-                allowed-origins: [ "http://localhost:5173" ]
+                allowed-origins: [ "https://ta.greenart.n-e.kr" ]
                 allowed-methods: [ "*" ]
                 allowed-headers: [ "*" ]
                 allow-credentials: true
