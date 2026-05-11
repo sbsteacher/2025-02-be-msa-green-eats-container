@@ -16,8 +16,8 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://112.222.157.157:5011/my_eats_order?useInformationSchema=true&createDatabaseIfNotExist=true&characterEncoding=UTF-8
-    username: green1
-    password: spring502
+    username: root
+    password: test
   jpa:
     hibernate:
       ddl-auto: none
