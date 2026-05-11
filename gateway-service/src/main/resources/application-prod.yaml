@@ -33,24 +33,19 @@ spring:
           # 라우팅 설정
           routes:
             - id: auth-service
-              uri: lb://auth-service
+              uri: http://auth-service:80
               predicates:
                 - Path=/api/user/**
 
             - id: store-service
-              uri: lb://store-service
+              uri: http://store-service:80
               predicates:
                 - Path=/api/store/**
 
             - id: order-service
-              uri: lb://order-service
+              uri: http://order-service:80
               predicates:
                 - Path=/api/order, /api/order/**
-    kubernetes:
-      discovery:
-        enabled: true
-      reload:
-        enabled: true
-        strategy: refresh
+
 
 
