@@ -19,7 +19,7 @@ spring:
     name: auth-service
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://112.222.157.157:5011/my_eats_order?useInformationSchema=true&createDatabaseIfNotExist=true&characterEncoding=UTF-8
+    url: jdbc:mysql://112.222.157.157:5011/my_eats_user?useInformationSchema=true&createDatabaseIfNotExist=true&characterEncoding=UTF-8
     username: green1
     password: spring502
   jpa:
