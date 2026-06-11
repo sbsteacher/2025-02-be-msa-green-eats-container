@@ -4,6 +4,9 @@ plugins {
     // apply false는 루트 프로젝트 자체에는 이 기능을 적용하지 않겠다는 뜻입니다.
     id 'org.springframework.boot' version '4.0.4' apply false
     id 'io.spring.dependency-management' version '1.1.7' apply false
+
+
+
 }
 
 // 모든 하위 모듈에 공통으로 적용되는 설정

@@ -28,4 +28,7 @@ dependencies {
 
 // 라이브러리이므로 실행 파일(jar) 생성 방식을 변경
 bootJar { enabled = false } // 실행 가능한 jar를 만들지 않음 (메인 메소드가 없으므로)
-jar { enabled = true } // 다른 모듈에서 부품으로 쓸 수 있는 일반 jar만 생성
+jar {
+	enabled = true
+	archiveClassifier = '' // 이 부분이 없으면 -plain 이 붙어서 참조 이슈 발생가능성 존재
+} // 다른 모듈에서 부품으로 쓸 수 있는 일반 jar만 생성
