@@ -3,16 +3,19 @@ package com.green.eats.store.application;
 import com.green.eats.common.Dummy;
 import com.green.eats.store.entity.Menu;
 import com.green.eats.store.enumcode.EnumMenuCategory;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 
+@Disabled("더미 데이터 생성 태스크이므로 빌드 시 테스트 대상에서 제외") // 🔥 추가
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class MenuDummy extends Dummy {
     @Autowired
     MenuRepository menuRepository;
+
 
     @Test
     void insDummyList() {

@@ -7,7 +7,6 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @ConfigurationPropertiesScan
-@EnableJpaAuditing
 @SpringBootApplication
 @EntityScan(basePackages = {"com.green.eats.auth", "com.green.eats.common"})
 public class AuthServiceApplication {

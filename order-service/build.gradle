@@ -2,8 +2,7 @@
 // 자식에서는 plugins 블록을 비우거나 생략해도 됩니다.
 
 dependencies {
-	// 1. 공통 모듈 의존성 주입 (가장 중요)
-	implementation project(':common')
+
 // JSON 처리를 위한 Jackson
 	implementation 'io.jsonwebtoken:jjwt-api:0.13.0'
 	implementation 'io.jsonwebtoken:jjwt-impl:0.13.0'

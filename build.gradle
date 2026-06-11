@@ -1,47 +1,84 @@
 plugins {
     id 'java'
     // 하위 모듈에서 사용할 플러그인들의 버전을 여기서 중앙 제어합니다.
-    // apply false는 루트 프로젝트 자체에는 이 기능을 적용하지 않겠다는 뜻입니다.
     id 'org.springframework.boot' version '4.0.4' apply false
     id 'io.spring.dependency-management' version '1.1.7' apply false
-
-
-
+    id 'com.epages.restdocs-api-spec' version '0.20.1' apply false
 }
 
-// 모든 하위 모듈에 공통으로 적용되는 설정
+// 뼈대 상수 설정 (버전 업그레이드 시 여기만 변경)
+ext {
+    springBootVersion = "4.0.4"
+    springCloudVersion = "2025.1.1"
+}
+
+// 1. [공통 영역] 모든 하위 모듈(common, 모든 service)에 일괄 적용되는 설정
 subprojects {
-    // 1. 플러그인 먼저 적용, 모든 모듈에서 공통으로 사용하는 의존성 (Lombok 등)
     apply plugin: 'java'
     apply plugin: 'java-library'
-    apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
 
     group = 'com.green.eats'
     version = '0.0.1'
 
-    java {
-        toolchain {
-            languageVersion = JavaLanguageVersion.of(21)
+    java { toolchain { languageVersion = JavaLanguageVersion.of(21) } }
+    repositories { mavenCentral() }
+
+    // 자바 컴파일 시 UTF-8 인코딩 강제 설정 (윈도우 한글 깨짐 방지)
+    tasks.withType(JavaCompile) { options.encoding = 'UTF-8' }
+
+    // 스프링 부트 플러그인이 없는 모듈도 라이브러리 버전을 맞출 수 있도록 BOM 주입
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
         }
     }
 
-    repositories {
-        mavenCentral()
-    }
-
     dependencies {
+        // 공통 서블릿 및 웹 구조 컴파일을 위해 최상단 상속 유지
         implementation 'org.springframework.boot:spring-boot-starter-webmvc'
-        implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
         compileOnly 'org.projectlombok:lombok'
         annotationProcessor 'org.projectlombok:lombok'
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
-        testImplementation 'org.springframework.boot:spring-boot-starter-actuator-test'
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     }
+}
 
-    ext {
-        set('springCloudVersion', "2025.1.1")
+// 2. [MSA 영역] 끝자리가 '-service'로 끝나는 실 구동 애플리케이션 모듈 전용 설정
+configure(subprojects.findAll { it.name.endsWith('-service') }) {
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'com.epages.restdocs-api-spec'
+
+    dependencies {
+        // 모니터링 스타터 주입
+        implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+        // 🔥 document-service는 비즈니스 코드가 없으므로 진짜 서비스들만 외부 모듈 격리 주입
+        if (project.name != 'document-service') {
+            implementation project(':common')
+            // 🛠️ [이 부분을 수정] 생 라이브러리 대신 스프링 부트 전용 restdocs 스타터로 변경합니다.
+            testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+            testImplementation 'com.epages:restdocs-api-spec-mockmvc:0.20.1'
+        }
+    }
+
+    // 🛠️ [여기에 추가!] document-service 모듈은 테스트 코드가 없으므로 test 태스크를 완전히 스킵합니다.
+    if (project.name == 'document-service') {
+        test.enabled = false
+    }
+
+    // 🔥 진짜 서비스 모듈들만 테스트 기반 API 스펙 자동 추출기 가동 (중복 완벽 제거)
+    if (project.name != 'document-service') {
+        openapi3 {
+            server = 'http://localhost:8080' // Gateway 주소 권장
+            title = "${project.name.toUpperCase()} API 문서"
+            description = "Spring Boot 4 모노레포 - ${project.name}의 API 스펙입니다."
+            version = '1.0.0'
+            format = 'json'
+            outputDirectory = "${rootProject.projectDir}/swagger-docs"
+            outputFileNamePrefix = "${project.name}"
+        }
     }
 
     dependencyManagement {
@@ -51,4 +88,25 @@ subprojects {
     }
 }
 
+// 3. [자동화 영역] 각 서비스의 openapi3 빌드가 끝난 후 정적 JSON 문서 자동 이동 스크립트
+subprojects {
+    tasks.all { task ->
+        if (task.name == 'openapi3') {
+            task.doLast {
+                copy {
+                    from "${rootProject.projectDir}/swagger-docs"
+                    into "${rootProject.projectDir}/document-service/src/main/resources/static/swagger-docs"
+                }
+                println "✨ [${project.name}] OpenAPI 스펙 파일이 document-service 모듈로 정상 복사되었습니다."
+            }
+        }
+    }
+}
+
+// 4. [루트 전용] 루트 컨테이너 자원 빌드 원천 봉쇄
 tasks.named('jar') { enabled = false }
+tasks.configureEach { task ->
+    if (task.name == 'bootJar') {
+        task.enabled = false
+    }
+}

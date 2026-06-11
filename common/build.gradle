@@ -26,8 +26,8 @@ dependencies {
 	testFixturesImplementation 'net.datafaker:datafaker:2.5.4'
 }
 
-// 라이브러리이므로 실행 파일(jar) 생성 방식을 변경
-bootJar { enabled = false } // 실행 가능한 jar를 만들지 않음 (메인 메소드가 없으므로)
+// 부트 플러그인이 없으므로 순수 jar 빌드 설정만 남깁니다.
+
 jar {
 	enabled = true
 	archiveClassifier = '' // 이 부분이 없으면 -plain 이 붙어서 참조 이슈 발생가능성 존재
