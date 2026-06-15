@@ -1,0 +1,16 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "STORE-SERVICE API 문서",
+    "description" : "Spring Boot 4 모노레포 - store-service의 API 스펙입니다.",
+    "version" : "1.0.0"
+  },
+  "servers" : [ {
+    "url" : "http://localhost:8080"
+  } ],
+  "tags" : [ ],
+  "paths" : { },
+  "components" : {
+    "schemas" : { }
+  }
+}

@@ -1,0 +1,8 @@
+dependencies {
+    // 🔥 중요: 웹서버(Tomcat)가 가동되도록 부트 웹 스타터를 명시적으로 선언합니다.
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    // UI 시각화를 위한 스타터
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+}
+
+bootJar { enabled = true }

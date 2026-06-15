@@ -1,0 +1,340 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "AUTH-SERVICE API 문서",
+    "description" : "Spring Boot 4 모노레포 - auth-service의 API 스펙입니다.",
+    "version" : "1.0.0"
+  },
+  "servers" : [ {
+    "url" : "http://localhost:8080"
+  } ],
+  "tags" : [ ],
+  "paths" : {
+    "/" : {
+      "put" : {
+        "tags" : [ "User" ],
+        "summary" : "회원정보 수정 API",
+        "description" : "현재 로그인한 사용자의 정보를 수정합니다. (인터셉터 인증 필요)",
+        "operationId" : "user-update",
+        "parameters" : [ {
+          "name" : "X-User-Id",
+          "in" : "header",
+          "description" : "Gateway에서 주입하는 인증된 사용자 ID",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "1"
+        }, {
+          "name" : "X-User-Name",
+          "in" : "header",
+          "description" : "Gateway에서 주입하는 인증된 사용자 이름 (URL 인코딩됨)",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "홍길동"
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/-474776089"
+              },
+              "examples" : {
+                "user-update" : {
+                  "value" : "{\"address\":\"서울시 강남구\",\"name\":\"이순신\"}"
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/reissue583285516"
+                },
+                "examples" : {
+                  "user-update" : {
+                    "value" : "{\"resultMessage\":\"수정 성공\"}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "User" ],
+        "summary" : "회원 탈퇴 API",
+        "description" : "현재 로그인한 사용자를 삭제(탈퇴)합니다.",
+        "operationId" : "user-delete",
+        "parameters" : [ {
+          "name" : "X-User-Id",
+          "in" : "header",
+          "description" : "Gateway에서 주입하는 인증된 사용자 ID",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "1"
+        }, {
+          "name" : "X-User-Name",
+          "in" : "header",
+          "description" : "Gateway에서 주입하는 인증된 사용자 이름 (URL 인코딩됨)",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "홍길동"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/reissue583285516"
+                },
+                "examples" : {
+                  "user-delete" : {
+                    "value" : "{\"resultMessage\":\"삭제 성공\"}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reissue" : {
+      "post" : {
+        "tags" : [ "User" ],
+        "summary" : "토큰 재발행 API",
+        "description" : "Refresh 토큰을 이용하여 Access 토큰을 재발급합니다.",
+        "operationId" : "user-reissue",
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/reissue583285516"
+                },
+                "examples" : {
+                  "user-reissue" : {
+                    "value" : "{\"resultMessage\":\"AT 재발행\"}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/signin" : {
+      "post" : {
+        "tags" : [ "Sign" ],
+        "summary" : "로그인 API",
+        "description" : "아이디와 비밀번호로 인증 후 쿠키 토큰을 발급합니다.",
+        "operationId" : "user-signin",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/signin160150178"
+              },
+              "examples" : {
+                "user-signin" : {
+                  "value" : "{\"email\":\"testuser@gmail.com\",\"password\":\"password123!\"}"
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/signin-1988889596"
+                },
+                "examples" : {
+                  "user-signin" : {
+                    "value" : "{\"resultData\":{\"id\":1,\"name\":\"홍길동\"},\"resultMessage\":\"로그인 성공\"}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/signout" : {
+      "post" : {
+        "tags" : [ "Sign" ],
+        "summary" : "로그아웃 API",
+        "description" : "인증 쿠키 토큰을 만료시킵니다.",
+        "operationId" : "user-signout",
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/signup1651524083"
+                },
+                "examples" : {
+                  "user-signout" : {
+                    "value" : "{\"resultData\":1,\"resultMessage\":\"로그아웃 성공\"}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/signup" : {
+      "post" : {
+        "tags" : [ "Sign" ],
+        "summary" : "회원가입 API",
+        "description" : "새로운 사용자 계정을 생성합니다.",
+        "operationId" : "user-signup",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/signup702628874"
+              },
+              "examples" : {
+                "user-signup" : {
+                  "value" : "{\"email\":\"testuser@gmail.com\",\"password\":\"password123!\",\"name\":\"홍길동\",\"address\":null,\"userRole\":null}"
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/signup1651524083"
+                },
+                "examples" : {
+                  "user-signup" : {
+                    "value" : "{\"resultData\":1,\"resultMessage\":\"회원가입 성공\"}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "signup1651524083" : {
+        "required" : [ "resultData", "resultMessage" ],
+        "type" : "object",
+        "properties" : {
+          "resultData" : {
+            "type" : "number",
+            "description" : "결과 데이터 (1: 성공)"
+          },
+          "resultMessage" : {
+            "type" : "string",
+            "description" : "결과 메시지"
+          }
+        }
+      },
+      "-474776089" : {
+        "required" : [ "address", "name" ],
+        "type" : "object",
+        "properties" : {
+          "address" : {
+            "type" : "string",
+            "description" : "변경할 주소"
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "변경할 이름"
+          }
+        }
+      },
+      "signin-1988889596" : {
+        "required" : [ "resultMessage" ],
+        "type" : "object",
+        "properties" : {
+          "resultData" : {
+            "required" : [ "id", "name" ],
+            "type" : "object",
+            "properties" : {
+              "name" : {
+                "type" : "string",
+                "description" : "로그인한 사용자 이름"
+              },
+              "id" : {
+                "type" : "number",
+                "description" : "로그인한 사용자 PK"
+              }
+            }
+          },
+          "resultMessage" : {
+            "type" : "string",
+            "description" : "결과 메시지"
+          }
+        }
+      },
+      "reissue583285516" : {
+        "required" : [ "resultMessage" ],
+        "type" : "object",
+        "properties" : {
+          "resultMessage" : {
+            "type" : "string",
+            "description" : "결과 메시지"
+          }
+        }
+      },
+      "signin160150178" : {
+        "required" : [ "email", "password" ],
+        "type" : "object",
+        "properties" : {
+          "password" : {
+            "type" : "string",
+            "description" : "비밀번호"
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "사용자 아이디"
+          }
+        }
+      },
+      "signup702628874" : {
+        "required" : [ "email", "name", "password" ],
+        "type" : "object",
+        "properties" : {
+          "password" : {
+            "type" : "string",
+            "description" : "비밀번호"
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "사용자 이름"
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "사용자 이메일"
+          }
+        }
+      }
+    }
+  }
+}
