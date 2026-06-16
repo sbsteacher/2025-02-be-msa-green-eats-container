@@ -48,7 +48,6 @@ import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 @AutoConfigureMockMvc(addFilters = false)
 // 💡 2. Spring Boot 4.0의 슬라이스 테스트 내 HTTP 메시지 컨버터 유실 버그를 방어합니다.
 @ImportAutoConfiguration(HttpMessageConvertersAutoConfiguration.class)
-// 🎯 [최종 교정] 진범인 커스텀 EnumAutoConfiguration을 자동 설정 목록에서 완전히 제외시킵니다!
 class UserControllerTest {
     @TestConfiguration
     static class TestConfig {

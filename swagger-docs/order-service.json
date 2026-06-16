@@ -9,8 +9,88 @@
     "url" : "http://localhost:8080"
   } ],
   "tags" : [ ],
-  "paths" : { },
+  "paths" : {
+    "/" : {
+      "post" : {
+        "tags" : [ "Order" ],
+        "summary" : "주문 생성 API",
+        "description" : "사용자의 장바구니 상품들을 이용해 주문을 등록합니다.",
+        "operationId" : "post-order",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/-1607881661"
+              },
+              "examples" : {
+                "post-order" : {
+                  "value" : "{\"items\":[],\"totalAmount\":25000}"
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/1249038228"
+                },
+                "examples" : {
+                  "post-order" : {
+                    "value" : "{\"resultData\":100,\"resultMessage\":\"success\"}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
   "components" : {
-    "schemas" : { }
+    "schemas" : {
+      "1249038228" : {
+        "required" : [ "resultData", "resultMessage" ],
+        "type" : "object",
+        "properties" : {
+          "resultData" : {
+            "type" : "number",
+            "description" : "생성 완료된 주문 ID"
+          },
+          "resultMessage" : {
+            "type" : "string",
+            "description" : "결과 메시지 (success)"
+          }
+        }
+      },
+      "-1607881661" : {
+        "required" : [ "items", "totalAmount" ],
+        "type" : "object",
+        "properties" : {
+          "totalAmount" : {
+            "type" : "number",
+            "description" : "총 주문 금액 (0보다 커야 함)"
+          },
+          "items" : {
+            "type" : "array",
+            "description" : "주문 상품 목록 (최소 1개 이상)",
+            "items" : {
+              "oneOf" : [ {
+                "type" : "object"
+              }, {
+                "type" : "boolean"
+              }, {
+                "type" : "string"
+              }, {
+                "type" : "number"
+              } ]
+            }
+          }
+        }
+      }
+    }
   }
 }
