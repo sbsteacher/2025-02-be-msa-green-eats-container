@@ -2,12 +2,10 @@ package com.green.eats.auth.application;
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper;
 import com.green.eats.auth.application.model.UserPutReq;
 import com.green.eats.auth.application.model.UserSigninReq;
 import com.green.eats.auth.application.model.UserSignupReq;
 import com.green.eats.auth.entity.User;
-import com.green.eats.common.enumcode.EnumAutoConfiguration;
 import com.green.eats.common.model.EnumUserRole;
 import com.green.eats.common.auth.UserContext;
 import com.green.eats.common.model.UserDto;
@@ -19,23 +17,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-import org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration;
-import org.springframework.boot.jackson.autoconfigure.JacksonAutoConfiguration;
-import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
-import org.springframework.boot.kafka.autoconfigure.KafkaAutoConfiguration;
+import org.springframework.boot.http.converter.autoconfigure.HttpMessageConvertersAutoConfiguration;
 import org.springframework.boot.restdocs.test.autoconfigure.AutoConfigureRestDocs;
-import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.webmvc.autoconfigure.WebMvcAutoConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -48,29 +39,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 
-@WebMvcTest(UserController.class)
+@WebMvcTest(
+        value = UserController.class,
+        excludeAutoConfiguration = com.green.eats.common.enumcode.EnumAutoConfiguration.class
+)
 @AutoConfigureRestDocs
 // 💡 1. Security 인증 필터를 패스하여 순수 컨트롤러 명세 추출에만 집중합니다.
 @AutoConfigureMockMvc(addFilters = false)
 // 💡 2. Spring Boot 4.0의 슬라이스 테스트 내 HTTP 메시지 컨버터 유실 버그를 방어합니다.
-@ImportAutoConfiguration(org.springframework.boot.http.converter.autoconfigure.HttpMessageConvertersAutoConfiguration.class)
+@ImportAutoConfiguration(HttpMessageConvertersAutoConfiguration.class)
 // 🎯 [최종 교정] 진범인 커스텀 EnumAutoConfiguration을 자동 설정 목록에서 완전히 제외시킵니다!
-@TestPropertySource(properties = {
-        "spring.autoconfigure.exclude=" +
-                "com.green.eats.common.enumcode.EnumAutoConfiguration," + // 👈 이 녀석이 핵심입니다!
-                "org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration," +
-
-                "org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration," +
-
-                "org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration," +
-
-                "org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration," +
-                //"org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration," +
-                "org.springframework.boot.kafka.autoconfigure.KafkaAutoConfiguration"
-
-})
 class UserControllerTest {
-
     @TestConfiguration
     static class TestConfig {
         @Bean
@@ -78,7 +57,6 @@ class UserControllerTest {
             return new ObjectMapper();
         }
     }
-
     @Autowired
     private MockMvc mockMvc;
 

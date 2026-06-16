@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @ConfigurationPropertiesScan
 @SpringBootApplication
-@EntityScan(basePackages = {"com.green.eats.auth", "com.green.eats.common"})
 public class AuthServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(AuthServiceApplication.class, args);

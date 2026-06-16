@@ -46,7 +46,7 @@ subprojects {
 }
 
 // 2. [MSA 영역] 끝자리가 '-service'로 끝나는 실 구동 애플리케이션 모듈 전용 설정
-configure(subprojects.findAll { it.name.endsWith('-service') || it.name == 'gateway' }) {
+configure(subprojects.findAll { it.name.endsWith('-service') }) {
     apply plugin: 'org.springframework.boot'
     apply plugin: 'com.epages.restdocs-api-spec'
 
@@ -59,19 +59,12 @@ configure(subprojects.findAll { it.name.endsWith('-service') || it.name == 'gate
             implementation project(':common')
             // 🛠️ [이 부분을 수정] 생 라이브러리 대신 스프링 부트 전용 restdocs 스타터로 변경합니다.
             testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
-
-            // 🔥 [핵심] WebMvcTest 가동 시 Security가 있으면 이 두 녀석이 '무조건' 세트로 존재해야 컨텍스트가 터지지 않습니다.
-            testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
-            testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
-
-            // OpenAPI 스펙 명세용 라이브러리
-            testImplementation 'org.springframework.boot:spring-boot-starter-restdocs'
             testImplementation 'com.epages:restdocs-api-spec-mockmvc:0.20.1'
         }
     }
 
     // 🛠️ [여기에 추가!] document-service 모듈은 테스트 코드가 없으므로 test 태스크를 완전히 스킵합니다.
-    if (project.name == 'document-service' || project.name == 'gateway-service') {
+    if (project.name == 'document-service') {
         test.enabled = false
     }
 
@@ -91,28 +84,6 @@ configure(subprojects.findAll { it.name.endsWith('-service') || it.name == 'gate
     dependencyManagement {
         imports {
             mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
-        }
-    }
-
-    // 🎯 [여기에 추가] 스웨거 문서 빌드 타임 전용 테스트 필터링 인프라 구축
-    tasks.named('test') {
-        useJUnitPlatform()
-
-        // ✅ 1. [Admin/Rider 에러 해결]
-        // 테스트 소스 폴더가 비어있거나 실행할 테스트가 0개여도 빌드가 터지지 않도록 방어합니다.
-        failOnNoDiscoveredTests = false
-
-        // ✅ 2. [Auth 에러 해결]
-        // 만약 실행 명령어가 'openapi3'를 포함하고 있다면, 일반 비즈니스 테스트는 스킵하고
-        // 오직 API 명세서 추출용 컨트롤러 테스트만 저격해서 실행하도록 필터링합니다.
-        if (gradle.startParameter.taskNames.any { it.contains('openapi3') }) {
-
-            // 💡 학생들의 스웨거 테스트 파일 네이밍 규칙에 맞게 지정해 줍니다.
-            // 보통 컨트롤러만 슬라이스 테스트하므로 아래 규칙이 정석입니다.
-            include '**/*ControllerTest.class'
-
-            // (선택사항) 혹시 명세용 테스트 도중 간헐적 실패가 나더라도 문서 복사를 강행하고 싶다면 활성화
-            ignoreFailures = true
         }
     }
 }
