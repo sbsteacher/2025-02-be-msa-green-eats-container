@@ -1,10 +1,10 @@
 package com.green.eats.order.application;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.green.eats.common.auth.UserContext;
 import com.green.eats.common.model.UserDto;
-import com.green.eats.common.security.JwtTokenManager;
+import com.green.eats.order.application.model.OrderGetDetailRes;
+import com.green.eats.order.application.model.OrderGetPageRes;
 import com.green.eats.order.application.model.OrderPostReq;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,6 +21,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.Mockito.when;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
@@ -37,8 +38,20 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mockStatic;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+
+import static org.mockito.BDDMockito.given;
+
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get; // 중요: pathParameters 사용 시 필수
+
+import static org.springframework.restdocs.request.RequestDocumentation.*;
+
 @WebMvcTest(
         value = OrderController.class,
         excludeAutoConfiguration = com.green.eats.common.enumcode.EnumAutoConfiguration.class
@@ -112,6 +125,69 @@ class OrderControllerTest {
                             )
                     ));
         }
+    }
+
+    @Test
+    @DisplayName("주문 목록 조회 API 성공 테스트 및 문서화")
+    void getOrderListSuccess() throws Exception {
+        // given
+        Long lastId = 10L;
+
+        // OrderDto 구조를 유추하여 Mock 데이터 생성 (필요시 실제 OrderDto 필드에 맞게 빌더 등으로 수정)
+        OrderGetPageRes mockResponse = new OrderGetPageRes(List.of(), false, 1L);
+
+        given(orderService.getOrders(any())).willReturn(mockResponse);
+
+        // when & then
+        mockMvc.perform(get("/")
+                        .param("lastId", String.valueOf(lastId))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(document("order-get-list", // 조각(snippet) 파일이 저장될 디렉토리명
+                        queryParameters(
+                                parameterWithName("lastId").description("마지막으로 조회된 주문 ID (커서 기반 페이징용, 선택 항목)").optional()
+                        ),
+                        responseFields(
+                                fieldWithPath("resultMessage").description("결과 메시지 (예: '0 rows')"),
+                                fieldWithPath("resultData").description("결과 데이터 전체"),
+                                fieldWithPath("resultData.orders").description("주문 정보 배열 (OrderDto 목록)"),
+                                fieldWithPath("resultData.hasNext").description("다음 페이지 존재 여부"),
+                                fieldWithPath("resultData.nextLastId").description("다음 페이징 요청 시 사용할 lastId (null 가능)").optional()
+                        )
+                ));
+    }
+
+    @Test
+    @DisplayName("주문 상세 조회 API 성공 테스트 및 문서화")
+    void getOrderDetailSuccess() throws Exception {
+        // given
+        Long orderId = 1L;
+        List<OrderGetDetailRes> mockResponse = List.of(
+                OrderGetDetailRes.builder().id(1L).name("맛있는 치킨").price(20000).quantity(1).build(),
+                OrderGetDetailRes.builder().id(2L).name("시원한 콜라").price(2500).quantity(2).build()
+        );
+
+        given(orderService.getOrderDetail(orderId)).willReturn(mockResponse);
+
+        // when & then
+        mockMvc.perform(get("/{orderId}", orderId) // RestDocumentationRequestBuilders.get 사용 필수
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(document("order-get-detail",
+                        pathParameters(
+                                parameterWithName("orderId").description("조회할 주문 ID")
+                        ),
+                        responseFields(
+                                fieldWithPath("resultMessage").description("결과 메시지 (예: '2 rows')"),
+                                fieldWithPath("resultData").description("결과 데이터 목록 (주문 상세 정보 배열)"),
+                                fieldWithPath("resultData[].id").description("상품 상세 ID"),
+                                fieldWithPath("resultData[].name").description("상품명"),
+                                fieldWithPath("resultData[].price").description("가격"),
+                                fieldWithPath("resultData[].quantity").description("수량")
+                        )
+                ));
     }
 
 }

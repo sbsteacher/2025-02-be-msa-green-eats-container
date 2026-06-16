@@ -10,5 +10,4 @@ public class OrderGetPageRes {
     private List<OrderDto> orders;
     private boolean hasNext;
     private Long nextLastId;
-
 }
