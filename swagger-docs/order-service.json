@@ -11,11 +11,80 @@
   "tags" : [ ],
   "paths" : {
     "/" : {
+      "get" : {
+        "tags" : [ "Order" ],
+        "summary" : "주문 목록 조회 API",
+        "description" : "마지막으로 조회된 주문 ID를 기준으로 커서 기반 페이징된 주문 목록을 조회합니다.",
+        "operationId" : "order-get-list",
+        "parameters" : [ {
+          "name" : "lastId",
+          "in" : "query",
+          "description" : "마지막으로 조회된 주문 ID (커서 기반 페이징용, 선택 항목)",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "X-User-Id",
+          "in" : "header",
+          "description" : "Gateway에서 주입하는 인증된 사용자 ID",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "1"
+        }, {
+          "name" : "X-User-Name",
+          "in" : "header",
+          "description" : "Gateway에서 주입하는 인증된 사용자 이름 (URL 인코딩됨)",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "홍길동"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/-48942428"
+                },
+                "examples" : {
+                  "order-get-list" : {
+                    "value" : "{\"resultData\":{\"orders\":[],\"hasNext\":false,\"nextLastId\":1},\"resultMessage\":\"0 rows\"}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "post" : {
         "tags" : [ "Order" ],
         "summary" : "주문 생성 API",
         "description" : "사용자의 장바구니 상품들을 이용해 주문을 등록합니다.",
         "operationId" : "post-order",
+        "parameters" : [ {
+          "name" : "X-User-Id",
+          "in" : "header",
+          "description" : "Gateway에서 주입하는 인증된 사용자 ID",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "1"
+        }, {
+          "name" : "X-User-Name",
+          "in" : "header",
+          "description" : "Gateway에서 주입하는 인증된 사용자 이름 (URL 인코딩됨)",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "홍길동"
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -48,10 +117,103 @@
           }
         }
       }
+    },
+    "/{orderId}" : {
+      "get" : {
+        "tags" : [ "Order" ],
+        "summary" : "주문 상세 조회 API",
+        "description" : "특정 주문 ID에 해당하는 주문 상세 내역 리스트를 조회합니다.",
+        "operationId" : "order-get-detail",
+        "parameters" : [ {
+          "name" : "orderId",
+          "in" : "path",
+          "description" : "조회할 주문 ID",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "X-User-Id",
+          "in" : "header",
+          "description" : "Gateway에서 주입하는 인증된 사용자 ID",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "1"
+        }, {
+          "name" : "X-User-Name",
+          "in" : "header",
+          "description" : "Gateway에서 주입하는 인증된 사용자 이름 (URL 인코딩됨)",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "홍길동"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/orderId-1714791963"
+                },
+                "examples" : {
+                  "order-get-detail" : {
+                    "value" : "{\"resultData\":[{\"id\":1,\"name\":\"맛있는 치킨\",\"price\":20000,\"quantity\":1},{\"id\":2,\"name\":\"시원한 콜라\",\"price\":2500,\"quantity\":2}],\"resultMessage\":\"2 rows\"}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components" : {
     "schemas" : {
+      "-48942428" : {
+        "required" : [ "resultData", "resultMessage" ],
+        "type" : "object",
+        "properties" : {
+          "resultData" : {
+            "required" : [ "hasNext", "orders" ],
+            "type" : "object",
+            "properties" : {
+              "hasNext" : {
+                "type" : "boolean",
+                "description" : "다음 페이지 존재 여부"
+              },
+              "orders" : {
+                "type" : "array",
+                "description" : "주문 정보 배열 (OrderDto 목록)",
+                "items" : {
+                  "oneOf" : [ {
+                    "type" : "object"
+                  }, {
+                    "type" : "boolean"
+                  }, {
+                    "type" : "string"
+                  }, {
+                    "type" : "number"
+                  } ]
+                }
+              },
+              "nextLastId" : {
+                "type" : "number",
+                "description" : "다음 페이징 요청 시 사용할 lastId (null 가능)",
+                "nullable" : true
+              }
+            },
+            "description" : "결과 데이터 전체"
+          },
+          "resultMessage" : {
+            "type" : "string",
+            "description" : "결과 메시지 (예: '0 rows')"
+          }
+        }
+      },
       "1249038228" : {
         "required" : [ "resultData", "resultMessage" ],
         "type" : "object",
@@ -88,6 +250,42 @@
                 "type" : "number"
               } ]
             }
+          }
+        }
+      },
+      "orderId-1714791963" : {
+        "required" : [ "resultData", "resultMessage" ],
+        "type" : "object",
+        "properties" : {
+          "resultData" : {
+            "type" : "array",
+            "description" : "결과 데이터 목록 (주문 상세 정보 배열)",
+            "items" : {
+              "required" : [ "id", "name", "price", "quantity" ],
+              "type" : "object",
+              "properties" : {
+                "quantity" : {
+                  "type" : "number",
+                  "description" : "수량"
+                },
+                "price" : {
+                  "type" : "number",
+                  "description" : "가격"
+                },
+                "name" : {
+                  "type" : "string",
+                  "description" : "상품명"
+                },
+                "id" : {
+                  "type" : "number",
+                  "description" : "상품 상세 ID"
+                }
+              }
+            }
+          },
+          "resultMessage" : {
+            "type" : "string",
+            "description" : "결과 메시지 (예: '2 rows')"
           }
         }
       }

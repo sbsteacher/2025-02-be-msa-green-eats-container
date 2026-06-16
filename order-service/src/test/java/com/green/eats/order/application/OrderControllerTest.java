@@ -36,6 +36,7 @@ import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mockStatic;
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
@@ -99,6 +100,8 @@ class OrderControllerTest {
 
             // when
             ResultActions result = mockMvc.perform(post("/")
+                    .header("X-User-Id", "1")
+                    .header("X-User-Name", "홍길동")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request)));
 
@@ -113,6 +116,10 @@ class OrderControllerTest {
                                     .tag("Order") // Swagger UI에서 그룹핑될 태그 이름
                                     .summary("주문 생성 API") // 스웨거 한줄 요약
                                     .description("사용자의 장바구니 상품들을 이용해 주문을 등록합니다.") // 상세 설명
+                                    .requestHeaders(
+                                            headerWithName("X-User-Id").description("Gateway에서 주입하는 인증된 사용자 ID"),
+                                            headerWithName("X-User-Name").description("Gateway에서 주입하는 인증된 사용자 이름 (URL 인코딩됨)")
+                                    )
                                     .requestFields(
                                             fieldWithPath("items").type(JsonFieldType.ARRAY).description("주문 상품 목록 (최소 1개 이상)"),
                                             fieldWithPath("totalAmount").type(JsonFieldType.NUMBER).description("총 주문 금액 (0보다 커야 함)")
@@ -140,20 +147,32 @@ class OrderControllerTest {
 
         // when & then
         mockMvc.perform(get("/")
+                        .header("X-User-Id", "1")
+                        .header("X-User-Name", "홍길동")
                         .param("lastId", String.valueOf(lastId))
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andDo(document("order-get-list", // 조각(snippet) 파일이 저장될 디렉토리명
-                        queryParameters(
-                                parameterWithName("lastId").description("마지막으로 조회된 주문 ID (커서 기반 페이징용, 선택 항목)").optional()
-                        ),
-                        responseFields(
-                                fieldWithPath("resultMessage").description("결과 메시지 (예: '0 rows')"),
-                                fieldWithPath("resultData").description("결과 데이터 전체"),
-                                fieldWithPath("resultData.orders").description("주문 정보 배열 (OrderDto 목록)"),
-                                fieldWithPath("resultData.hasNext").description("다음 페이지 존재 여부"),
-                                fieldWithPath("resultData.nextLastId").description("다음 페이징 요청 시 사용할 lastId (null 가능)").optional()
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("Order") // Swagger UI에서 그룹핑될 태그 이름
+                                .summary("주문 목록 조회 API") // 스웨거 한줄 요약
+                                .description("마지막으로 조회된 주문 ID를 기준으로 커서 기반 페이징된 주문 목록을 조회합니다.") // 상세 설명
+                                .requestHeaders(
+                                        headerWithName("X-User-Id").description("Gateway에서 주입하는 인증된 사용자 ID"),
+                                        headerWithName("X-User-Name").description("Gateway에서 주입하는 인증된 사용자 이름 (URL 인코딩됨)")
+                                )
+                                .queryParameters(
+                                        parameterWithName("lastId").description("마지막으로 조회된 주문 ID (커서 기반 페이징용, 선택 항목)").optional()
+                                )
+                                .responseFields(
+                                        fieldWithPath("resultMessage").description("결과 메시지 (예: '0 rows')"),
+                                        fieldWithPath("resultData").description("결과 데이터 전체"),
+                                        fieldWithPath("resultData.orders").description("주문 정보 배열 (OrderDto 목록)"),
+                                        fieldWithPath("resultData.hasNext").description("다음 페이지 존재 여부"),
+                                        fieldWithPath("resultData.nextLastId").description("다음 페이징 요청 시 사용할 lastId (null 가능)").optional()
+                                )
+                                .build()
                         )
                 ));
     }
@@ -172,20 +191,34 @@ class OrderControllerTest {
 
         // when & then
         mockMvc.perform(get("/{orderId}", orderId) // RestDocumentationRequestBuilders.get 사용 필수
-                        .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-User-Id", "1")
+                        .header("X-User-Name", "홍길동")
+
+                )
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andDo(document("order-get-detail",
-                        pathParameters(
-                                parameterWithName("orderId").description("조회할 주문 ID")
-                        ),
-                        responseFields(
-                                fieldWithPath("resultMessage").description("결과 메시지 (예: '2 rows')"),
-                                fieldWithPath("resultData").description("결과 데이터 목록 (주문 상세 정보 배열)"),
-                                fieldWithPath("resultData[].id").description("상품 상세 ID"),
-                                fieldWithPath("resultData[].name").description("상품명"),
-                                fieldWithPath("resultData[].price").description("가격"),
-                                fieldWithPath("resultData[].quantity").description("수량")
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("Order") // Swagger UI에서 그룹핑될 태그 이름
+                                .summary("주문 상세 조회 API") // 스웨거 한줄 요약
+                                .description("특정 주문 ID에 해당하는 주문 상세 내역 리스트를 조회합니다.") // 상세 설명
+                                .requestHeaders(
+                                        headerWithName("X-User-Id").description("Gateway에서 주입하는 인증된 사용자 ID"),
+                                        headerWithName("X-User-Name").description("Gateway에서 주입하는 인증된 사용자 이름 (URL 인코딩됨)")
+                                )
+                                .pathParameters(
+                                        parameterWithName("orderId").description("조회할 주문 ID")
+                                )
+                                .responseFields(
+                                        fieldWithPath("resultMessage").description("결과 메시지 (예: '2 rows')"),
+                                        fieldWithPath("resultData").description("결과 데이터 목록 (주문 상세 정보 배열)"),
+                                        fieldWithPath("resultData[].id").description("상품 상세 ID"),
+                                        fieldWithPath("resultData[].name").description("상품명"),
+                                        fieldWithPath("resultData[].price").description("가격"),
+                                        fieldWithPath("resultData[].quantity").description("수량")
+                                )
+                                .build()
                         )
                 ));
     }
